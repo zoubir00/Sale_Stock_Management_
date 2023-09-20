@@ -11,6 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sale_Management.Domain\Sale_Management.Domain.csproj" />
     <ProjectReference Include="..\Sale_Management.Application.Contracts\Sale_Management.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Sale_Management.EntityFrameworkCore\Sale_Management.EntityFrameworkCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>

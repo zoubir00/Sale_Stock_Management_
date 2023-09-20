@@ -1,4 +1,7 @@
-﻿using Volo.Abp.Account;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Sale_Management.BaseService;
+using Sale_Management.IBaseServices;
+using Volo.Abp.Account;
 using Volo.Abp.AutoMapper;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
@@ -23,6 +26,8 @@ public class Sale_ManagementApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+        context.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
         Configure<AbpAutoMapperOptions>(options =>
         {
             options.AddMaps<Sale_ManagementApplicationModule>();
