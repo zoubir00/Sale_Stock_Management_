@@ -45,7 +45,7 @@ namespace Sale_Management.BaseService
             return await _dbContext.Set<TEntity>().FindAsync(id);
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity)
+        public async Task<TEntity> UpdateAsync(int id,TEntity entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();

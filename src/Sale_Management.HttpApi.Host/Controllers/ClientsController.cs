@@ -49,19 +49,29 @@ namespace Sale_Management.Controllers
             _service.CreateAsync(_client);
             return Ok();
         }
-        // edit book
-        [HttpPut]
-        public IActionResult UpdateClient(ClientDto client)
+        // edit client
+        [HttpPut("edit/{id}")]
+        public async Task<IActionResult> UpdateClient(int id,[FromBody]ClientDto client)
         {
-
-            var _client = new Client
+            if (id == client.Id)
             {
-                FName = client.FName,
-                LName = client.LName,
-                Email = client.Email,
-                PhoneNumber = client.PhoneNumber
-            };
-            _service.UpdateAsync(_client);
+                var existClient = await _service.GetByIdAsync(id);
+                existClient.FName = client.FName;
+                existClient.LName = client.LName;
+                existClient.Email = client.Email;
+                existClient.PhoneNumber = client.PhoneNumber;
+                await _service.UpdateAsync(id, existClient);
+                
+                return Ok(client);
+            }
+
+            return BadRequest();
+        }
+        // edit book
+        [HttpDelete("delete/{id}")]
+        public IActionResult DeleteClient(int id)
+        {
+            _service.DeleteAsync(id);
             return Ok();
         }
     }

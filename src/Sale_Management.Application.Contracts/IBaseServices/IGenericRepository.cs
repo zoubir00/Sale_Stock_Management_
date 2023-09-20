@@ -10,7 +10,7 @@ namespace Sale_Management.IBaseServices
         Task<TEntity> GetByIdAsync(int id);
         Task<List<TEntity>> GetAllAsync();
         Task<TEntity> CreateAsync(TEntity entity);
-        Task<TEntity> UpdateAsync(TEntity entity);
+        Task<TEntity> UpdateAsync(int id,TEntity entity);
         Task DeleteAsync(int id);
     }
 }
