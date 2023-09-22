@@ -11,7 +11,7 @@ namespace Sale_Management
 {
     public class VenteManagementDataSeederContributor : IDataSeedContributor, ITransientDependency
     {
-        public VenteManagementDataSeederContributor(/*IRepository<Client>*/)
+        public VenteManagementDataSeederContributor()
         {
             
         }

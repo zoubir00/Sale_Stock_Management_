@@ -14,6 +14,6 @@ namespace Sale_Management.Entities
         public string Email { get; set; }
         //navigation
         public string PhoneNumber { get; set; }
-        public List<Vente> Ventes { get; set; }
+        
     }
 }

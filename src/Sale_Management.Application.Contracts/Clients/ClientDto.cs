@@ -13,6 +13,6 @@ namespace Sale_Management.Clients
         public string Email { get; set; }
         //navigation
         public string PhoneNumber { get; set; }
-        
+
     }
 }

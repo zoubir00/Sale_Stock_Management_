@@ -36,15 +36,19 @@ namespace SaleManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Libelle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("QuantityinStock")
                         .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -88,49 +92,25 @@ namespace SaleManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DataVente")
+                    b.Property<DateTime>("DateVente")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TotalAmount")
+                    b.Property<int>("QuantityVendue")
+                        .HasColumnType("int");
+
+                    b.Property<int>("articleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("clientId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
+                    b.HasIndex("articleId");
+
+                    b.HasIndex("clientId");
 
                     b.ToTable("Ventes");
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.VenteArticles", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ItemAmount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VenteId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArticleId");
-
-                    b.HasIndex("VenteId");
-
-                    b.ToTable("VenteArticles");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
@@ -1791,32 +1771,21 @@ namespace SaleManagement.Migrations
 
             modelBuilder.Entity("Sale_Management.Entities.Vente", b =>
                 {
-                    b.HasOne("Sale_Management.Entities.Client", "Client")
-                        .WithMany("Ventes")
-                        .HasForeignKey("ClientId")
+                    b.HasOne("Sale_Management.Entities.Article", "articleVendue")
+                        .WithMany()
+                        .HasForeignKey("articleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Client");
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.VenteArticles", b =>
-                {
-                    b.HasOne("Sale_Management.Entities.Article", "Article")
-                        .WithMany("VenteItems")
-                        .HasForeignKey("ArticleId")
+                    b.HasOne("Sale_Management.Entities.Client", "client")
+                        .WithMany()
+                        .HasForeignKey("clientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sale_Management.Entities.Vente", "Vente")
-                        .WithMany("VenteItems")
-                        .HasForeignKey("VenteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("articleVendue");
 
-                    b.Navigation("Article");
-
-                    b.Navigation("Vente");
+                    b.Navigation("client");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>
@@ -1959,21 +1928,6 @@ namespace SaleManagement.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.Article", b =>
-                {
-                    b.Navigation("VenteItems");
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.Client", b =>
-                {
-                    b.Navigation("Ventes");
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.Vente", b =>
-                {
-                    b.Navigation("VenteItems");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sale_Management.Articles;
 using Sale_Management.Entities;
 using Sale_Management.IBaseServices;
+using System;
 using System.Threading.Tasks;
 
 namespace Sale_Management.Controllers
@@ -41,10 +42,11 @@ namespace Sale_Management.Controllers
         {
             var _article = new Article
             {
-               Title=article.Title,
+               Libelle=article.Libelle,
+               Image=article.Image,
                Description=article.Description,
                Price=article.Price,
-               Quantity=article.Quantity
+               QuantityinStock=article.QuantityinStock
                
             };
             _service.CreateAsync(_article);
@@ -58,10 +60,11 @@ namespace Sale_Management.Controllers
             if (id == article.Id)
             {
                 var existarticle = await _service.GetByIdAsync(id);
-                existarticle.Title = article.Title;
+                existarticle.Libelle = article.Libelle;
+                existarticle.Image = article.Image;
                 existarticle.Description = article.Description;
                 existarticle.Price = article.Price;
-                existarticle.Quantity = article.Quantity;
+                existarticle.QuantityinStock = article.QuantityinStock;
                 await _service.UpdateAsync(id, existarticle);
                 return Ok(article);
             }

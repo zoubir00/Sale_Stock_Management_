@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,17 @@ namespace Sale_Management.Entities
 {
     public class Vente:Entity<int>
     {
-        public DateTime DataVente { get; set; }
-        public int TotalAmount { get; set; }
-        //navigation
-        public List<VenteArticles> VenteItems { get; set; }
-        public Client Client { get; set; }
+        public DateTime DateVente { get; set; }
+        public int articleId { get; set; }
+        [ForeignKey(nameof(articleId))]
+        public Article articleVendue { get; set; }
+         public int clientId { get; set; }
+        [ForeignKey(nameof(clientId))]
+        public Client client { get; set; }
+        public int  QuantityVendue { get; set; }
+        public double PrixTotal(double articlePrice)
+        {
+            return articlePrice * QuantityVendue;
+        }
     }
 }

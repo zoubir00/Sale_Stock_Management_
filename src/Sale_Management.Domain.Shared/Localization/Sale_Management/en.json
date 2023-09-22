@@ -4,6 +4,13 @@
     "Menu:Home": "Home",
     "Welcome": "Welcome zoubir",
     "LongWelcomeMessage": "Welcome to the sale Application",
-    "Menu:Clients": "Clients"
+    "Menu:Clients": "Clients",
+    "Clients": "Clients",
+    "ClientDeletionConfirmationMessage": "Are you sure to delete the client '{0}'?",
+    "NewClient": "New client",
+    "Menu:Articles": "Articles",
+    "Articles": "Articles",
+    "ArticleDeletionConfirmationMessage": "Are you sure to delete the article '{0}'?",
+    "Newarticle": "New article"
   }
 }
