@@ -1,4 +1,6 @@
-﻿using Sale_Management.Entities;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Sale_Management.Entities;
 using Sale_Management.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,23 +14,49 @@ namespace Sale_Management.Ventes
     public class VenteService : IVenteService,IScopedDependency
     {
         private readonly Sale_ManagementDbContext _dbContext;
+        private readonly IMapper _mapper;
 
-        public VenteService(Sale_ManagementDbContext dbContext)
+        public VenteService(Sale_ManagementDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
+            _mapper = mapper;
         }
-
-        // get client vente
-        public List<Vente> GetClientVentes(string ClientfName, string ClientlName)
+        // get the ventes
+        public async Task<List<VenteDto>> GetAllVentesAsync()
         {
-            var client = _dbContext.Clients.FirstOrDefault(n => n.FName == ClientfName && n.LName == ClientlName);
-            var AllVentes = _dbContext.Ventes.ToList();
-            if (client != null)
+            var ventes = await _dbContext.Ventes
+                .Include(vente => vente.articleVendue)
+                .Include(vente => vente.client)
+                .ToListAsync();
+
+            var venteDtos = ventes.Select(vente =>
             {
-                var _ClientVente = _dbContext.Ventes.Where(v => v.clientId == client.Id).ToList();
-                return _ClientVente;
-            }
-            return AllVentes;
+                var venteDto = _mapper.Map<Vente, VenteDto>(vente);
+                venteDto.prixTotal = vente.PrixTotal(vente.articleVendue.Price);
+                return venteDto;
+            }).ToList();
+
+            return venteDtos;
+        }
+        // get client vente
+        public async Task<List<VenteDto>> GetVentesByClientNameAsync(string clientFName, string clientLName)
+        {
+            var ventes = await _dbContext.Ventes
+                .Include(vente => vente.articleVendue)
+                .Include(vente => vente.client)
+                .Where(vente =>
+                    vente.client.FName == clientFName &&
+                    vente.client.LName == clientLName)
+                .ToListAsync();
+
+            var venteDtos = ventes.Select(vente =>
+            {
+                var venteDto = _mapper.Map<Vente, VenteDto>(vente);
+                venteDto.prixTotal = vente.PrixTotal(vente.articleVendue.Price);
+                return venteDto;
+            }).ToList();
+
+            return venteDtos;
         }
 
         // effectuer la vente

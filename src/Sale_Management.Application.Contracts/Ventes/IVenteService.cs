@@ -10,6 +10,8 @@ namespace Sale_Management.Ventes
     public interface IVenteService
     {
         void AddVente(int client, int article, int quantite);
+        Task<List<VenteDto>> GetAllVentesAsync();
+        Task<List<VenteDto>> GetVentesByClientNameAsync(string clientFName, string clientLName);
         
     }
 }

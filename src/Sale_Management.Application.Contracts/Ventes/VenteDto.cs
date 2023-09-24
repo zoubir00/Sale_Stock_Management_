@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Json.SystemTextJson.JsonConverters;
 
 namespace Sale_Management.Ventes
 {
@@ -19,10 +20,8 @@ namespace Sale_Management.Ventes
         [ForeignKey(nameof(clientId))]
         public ClientDto client { get; set; }
         public int QuantityVendue { get; set; }
-        public double PrixTotal(double articlePrice)
-        {
-            return articlePrice * QuantityVendue;
-        }
+        public double prixTotal { get; set; }
+       
 
     }
 }

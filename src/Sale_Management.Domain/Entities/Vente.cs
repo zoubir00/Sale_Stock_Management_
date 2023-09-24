@@ -13,10 +13,10 @@ namespace Sale_Management.Entities
         public DateTime DateVente { get; set; }
         public int articleId { get; set; }
         [ForeignKey(nameof(articleId))]
-        public Article articleVendue { get; set; }
+        public Article? articleVendue { get; set; }
          public int clientId { get; set; }
         [ForeignKey(nameof(clientId))]
-        public Client client { get; set; }
+        public Client? client { get; set; }
         public int  QuantityVendue { get; set; }
         public double PrixTotal(double articlePrice)
         {

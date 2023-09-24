@@ -26,7 +26,7 @@ namespace Sale_Management.Controllers
         }
         // get client with by id
         [HttpGet("Client/{id}")]
-        public async Task<ActionResult> GetAllClients(int id)
+        public async Task<ActionResult> GetClientById(int id)
         {
             var client = await _service.GetByIdAsync(id);
             if (client != null)

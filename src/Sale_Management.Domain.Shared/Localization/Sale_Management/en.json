@@ -11,6 +11,18 @@
     "Menu:Articles": "Articles",
     "Articles": "Articles",
     "ArticleDeletionConfirmationMessage": "Are you sure to delete the article '{0}'?",
-    "Newarticle": "New article"
+    "Newarticle": "New article",
+    "Menu:Ventes": "Ventes",
+    "Ventes": "Ventes",
+    "VenteDeletionConfirmationMessage": "Are you sure to delete the Vente '{0}'?",
+    "NewVente": "New vente",
+    "Actions": "Actions",
+    "Close": "Close",
+    "Delete": "Delete",
+    "Edit": "Edit",
+    "fName": "First Name",
+    "lName": "Last Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number"
   }
 }

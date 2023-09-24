@@ -11,18 +11,30 @@ namespace Sale_Management.Controllers
     public class VenteController : ControllerBase
     {
         private readonly IVenteService _service;
-        private readonly VenteService _Ventservice;
+        
 
-        public VenteController(IVenteService service, VenteService ventservice)
+        public VenteController(IVenteService service)
         {
             _service = service;
-            _Ventservice = ventservice;
+            
         }
+        // get Ventes
+        [HttpGet("ventes")]
+        public async Task<IActionResult> GetVentes()
+        {
+            var ventes =await _service.GetAllVentesAsync();
+            if (ventes == null)
+            {
+                return NotFound();
+            }
+            return Ok(ventes);
+        }
+
         // get Client ventes
         [HttpGet]
-        public IActionResult GetClientVentes(string ClientfName, string ClientlName)
+        public async Task<IActionResult> GetClientVentes(string ClientfName, string ClientlName)
         {
-           var ventes= _Ventservice.GetClientVentes(ClientfName,ClientlName);
+           var ventes=await _service.GetVentesByClientNameAsync(ClientfName,ClientlName);
             if (ventes==null)
             {
                 return NotFound();
