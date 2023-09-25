@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Sale_Management.Clients;
 using Sale_Management.Entities;
+using Sale_Management.EntityFrameworkCore;
 using Sale_Management.IBaseServices;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sale_Management.Controllers
@@ -11,19 +14,22 @@ namespace Sale_Management.Controllers
     [ApiController]
     public class ClientsController : ControllerBase
     {
+        private readonly Sale_ManagementDbContext _dbContext;
         private readonly IGenericRepository<Client> _service;
 
-        public ClientsController(IGenericRepository<Client> service)
+        public ClientsController(IGenericRepository<Client> service, Sale_ManagementDbContext dbContext)
         {
             _service = service;
+            _dbContext = dbContext;
         }
         // get All clients
-        [HttpGet]
+        [HttpGet("GetClients")]
         public async Task<ActionResult> GetAllClients()
         {
             var clients = await _service.GetAllAsync();
             return Ok(clients);
         }
+        
         // get client with by id
         [HttpGet("Client/{id}")]
         public async Task<ActionResult> GetClientById(int id)
@@ -36,7 +42,7 @@ namespace Sale_Management.Controllers
             return NotFound();
         }
         // Insert Client
-        [HttpPost]
+        [HttpPost("Create")]
         public IActionResult CreateClient(ClientDto client)
         {
             var _client = new Client
@@ -51,21 +57,23 @@ namespace Sale_Management.Controllers
         }
         // edit client
         [HttpPut("edit/{id}")]
-        public async Task<IActionResult> UpdateClient(int id,[FromBody]ClientDto client)
+        public async Task<IActionResult> UpdateClient(int id,[FromBody]ClientDto newClient)
         {
-            if (id == client.Id)
+            //find article
+            var _existingClient = await _dbContext.Clients.FirstOrDefaultAsync(c => c.Id == id);
+            // check article existance
+            if (_existingClient==null)
             {
-                var existClient = await _service.GetByIdAsync(id);
-                existClient.FName = client.FName;
-                existClient.LName = client.LName;
-                existClient.Email = client.Email;
-                existClient.PhoneNumber = client.PhoneNumber;
-                await _service.UpdateAsync(id, existClient);
-                
-                return Ok(client);
+                return NotFound();
             }
+            _existingClient.FName = newClient.FName;
+            _existingClient.LName = newClient.LName;
+            _existingClient.Email = newClient.Email;
+            _existingClient.PhoneNumber = newClient.PhoneNumber;
 
-            return BadRequest();
+            _dbContext.Entry(_existingClient).State = EntityState.Modified;
+            await _dbContext.SaveChangesAsync();
+            return Ok(_existingClient);
         }
         // edit book
         [HttpDelete("delete/{id}")]

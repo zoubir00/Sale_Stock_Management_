@@ -55,5 +55,16 @@ namespace Sale_Management.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        // delete method:
+        [HttpDelete("ConfirmDelete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+           var t= _service.deleteVente(id);
+            if (t.IsCompletedSuccessfully)
+            {
+                return Ok();
+            }
+            return NotFound();
+        }
     }
 }

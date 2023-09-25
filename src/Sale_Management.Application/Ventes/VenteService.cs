@@ -29,11 +29,15 @@ namespace Sale_Management.Ventes
                 .Include(vente => vente.client)
                 .ToListAsync();
 
-            var venteDtos = ventes.Select(vente =>
+            var venteDtos = ventes.Select(vente => new VenteDto
             {
-                var venteDto = _mapper.Map<Vente, VenteDto>(vente);
-                venteDto.prixTotal = vente.PrixTotal(vente.articleVendue.Price);
-                return venteDto;
+                Id = vente.Id,
+                DateVente = vente.DateVente,
+                clientFName = vente.client.FName,
+                clientLName = vente.client.LName,
+                articleVendue = vente.articleVendue.Libelle, // Include the Libelle of the Article
+                QuantityVendue = vente.QuantityVendue,
+                prixTotal = vente.PrixTotal(vente.articleVendue.Price) // Assuming you have a CalculatePrixTotal method
             }).ToList();
 
             return venteDtos;
@@ -51,41 +55,87 @@ namespace Sale_Management.Ventes
 
             var venteDtos = ventes.Select(vente =>
             {
-                var venteDto = _mapper.Map<Vente, VenteDto>(vente);
-                venteDto.prixTotal = vente.PrixTotal(vente.articleVendue.Price);
+                var venteDto = new VenteDto
+                {
+                    Id = vente.Id,
+                    DateVente = vente.DateVente,
+                    clientFName = vente.client.FName,
+                    clientLName = vente.client.LName,
+                    articleVendue = vente.articleVendue.Libelle, // Include the Libelle of the Article
+                    QuantityVendue = vente.QuantityVendue,
+                    prixTotal = vente.PrixTotal(vente.articleVendue.Price) // Assuming you have a CalculatePrixTotal method
+                };
                 return venteDto;
             }).ToList();
-
             return venteDtos;
         }
 
         // effectuer la vente
-        public void AddVente(int clientId, int articleId, int quantite)
+        public VenteDto AddVente(int clientId, int articleId, int quantite)
         {
-            // get the article
+            // Get the article
             var article = _dbContext.Articles.Find(articleId);
-            // get the client
+            // Get the client
             var client = _dbContext.Clients.Find(clientId);
-            // check the existance of client and article and the availibility of quantity in stock
-            if(article.Id==articleId && client.Id==clientId && quantite <= article.QuantityinStock)
+
+            // Check the existence of client and article and the availability of quantity in stock
+            if (article != null && client != null && quantite <= article.QuantityinStock)
             {
                 // Add Vente
-               var vente = new Vente
-               {
+                var vente = new Vente
+                {
+                    DateVente = DateTime.Now,
                     articleId = articleId,
                     clientId = clientId,
                     QuantityVendue = quantite
-               };
-                //update stock quantity
+                };
+
+                // Update stock quantity
                 article.QuantityinStock -= quantite;
                 _dbContext.Ventes.Add(vente);
                 _dbContext.SaveChanges();
+
+                // Fetch the client's first name and last name
+                var clientFName = client.FName;
+                var clientLName = client.LName;
+
+                // Fetch the article's Libelle
+                var articleLibelle = article.Libelle;
+
+                // Create and return a VenteDto
+                var venteDto = new VenteDto
+                {
+                    Id = vente.Id,
+                    DateVente = vente.DateVente,
+                    clientFName = clientFName,
+                    clientLName = clientLName,
+                    articleVendue = articleLibelle,
+                    QuantityVendue = vente.QuantityVendue,
+                    prixTotal = vente.PrixTotal(article.Price) // Assuming you have a CalculatePrixTotal method
+                };
+
+                return venteDto;
             }
             else
             {
                 throw new Exception("Vente couldn't be done!");
             }
-            
         }
+        // delete
+        public async Task deleteVente(int id)
+        {
+            var venteTodelete =await _dbContext.Ventes.FindAsync(id);
+            if (venteTodelete == null)
+            {
+                throw new Exception("No vente found");
+            }
+            else
+            {
+                _dbContext.Ventes.Remove(venteTodelete);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+        
+
     }
 }

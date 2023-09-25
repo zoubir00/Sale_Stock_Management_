@@ -51,5 +51,6 @@ namespace Sale_Management.BaseService
             await _dbContext.SaveChangesAsync();
             return entity;
         }
+        
     }
 }

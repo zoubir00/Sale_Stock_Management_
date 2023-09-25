@@ -12,13 +12,11 @@ namespace Sale_Management.Ventes
 {
     public class VenteDto:EntityDto<int>
     {
-        public DateTime DateVente { get; set; }
-        public int articleId { get; set; }
-        [ForeignKey(nameof(articleId))]
-        public ArticleDto articleVendue { get; set; }
-        public int clientId { get; set; }
-        [ForeignKey(nameof(clientId))]
-        public ClientDto client { get; set; }
+        public DateTime DateVente { get; set; }     
+        public string articleVendue { get; set; }
+
+        public string clientFName { get; set; }
+        public string clientLName { get; set; }
         public int QuantityVendue { get; set; }
         public double prixTotal { get; set; }
        

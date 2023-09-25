@@ -9,9 +9,9 @@ namespace Sale_Management.Ventes
 {
     public interface IVenteService
     {
-        void AddVente(int client, int article, int quantite);
+        VenteDto AddVente(int clientId, int articleId, int quantite);
         Task<List<VenteDto>> GetAllVentesAsync();
         Task<List<VenteDto>> GetVentesByClientNameAsync(string clientFName, string clientLName);
-        
+        Task deleteVente(int id);
     }
 }
