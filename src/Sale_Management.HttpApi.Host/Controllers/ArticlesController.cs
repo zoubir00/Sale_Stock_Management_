@@ -6,6 +6,7 @@ using Sale_Management.Entities;
 using Sale_Management.EntityFrameworkCore;
 using Sale_Management.IBaseServices;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sale_Management.Controllers
@@ -82,6 +83,23 @@ namespace Sale_Management.Controllers
         {
             _service.DeleteAsync(id);
             return Ok();
+        }
+        // get By Libelli 
+        [HttpGet("articleLibelli")]
+        public IActionResult Search(string Slibelle)
+        {
+            var article = _dbContext.Articles.Where(a => a.Libelle.Contains(Slibelle)).Select(
+                article => new ArticleDto
+                {
+                    Id=article.Id,
+                    Libelle = article.Libelle,
+                    Image = article.Image,
+                    Description = article.Description,
+                    Price = article.Price,
+                    QuantityinStock = article.QuantityinStock
+
+                }).ToList();
+            return Ok(article);
         }
     }
 }

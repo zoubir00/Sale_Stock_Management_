@@ -82,5 +82,21 @@ namespace Sale_Management.Controllers
             _service.DeleteAsync(id);
             return Ok();
         }
+        //
+        [HttpGet("articleLibelli")]
+        public IActionResult Search(string Slibelle)
+        {
+            var clients = _dbContext.Clients.Where(c => c.LName.Contains(Slibelle)).Select(
+                c => new ClientDto
+                {
+                    Id = c.Id,
+                    FName = c.FName,
+                    LName = c.LName,
+                    Email = c.Email,
+                    PhoneNumber = c.PhoneNumber
+
+                }).ToList();
+            return Ok(clients);
+        }
     }
 }

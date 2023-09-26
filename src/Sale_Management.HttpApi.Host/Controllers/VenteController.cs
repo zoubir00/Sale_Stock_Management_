@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sale_Management.Ventes;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Sale_Management.Controllers
@@ -31,7 +32,7 @@ namespace Sale_Management.Controllers
         }
 
         // get Client ventes
-        [HttpGet]
+        [HttpGet("GetVenteByClient")]
         public async Task<IActionResult> GetClientVentes(string ClientfName, string ClientlName)
         {
            var ventes=await _service.GetVentesByClientNameAsync(ClientfName,ClientlName);
@@ -43,12 +44,12 @@ namespace Sale_Management.Controllers
         }
         //Post
         [HttpPost("vente")]
-        public  IActionResult CreateVente(int clientId,int articleId,int quantity)
+        public  IActionResult AddVente([FromBody] InputVente input)
         {
             try
             {
-                _service.AddVente(clientId, articleId,quantity);
-                return Ok();
+               var ventesum= _service.CreateVente(input.clientId, input.articleIds,input.quantities);
+                return Ok(ventesum);
             }
             catch(Exception ex)
             {
@@ -57,7 +58,7 @@ namespace Sale_Management.Controllers
         }
         // delete method:
         [HttpDelete("ConfirmDelete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public  IActionResult Delete(int id)
         {
            var t= _service.deleteVente(id);
             if (t.IsCompletedSuccessfully)
