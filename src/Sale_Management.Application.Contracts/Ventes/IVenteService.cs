@@ -14,5 +14,6 @@ namespace Sale_Management.Ventes
         Task<List<VenteDto>> GetAllVentesAsync();
         Task<List<VenteDto>> GetVentesByClientNameAsync(string clientFName, string clientLName);
         Task deleteVente(int id);
+        List<VenteSummaryDto> GetVenteSummaries();
     }
 }

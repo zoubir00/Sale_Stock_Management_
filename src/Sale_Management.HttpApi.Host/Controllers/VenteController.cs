@@ -23,7 +23,7 @@ namespace Sale_Management.Controllers
         [HttpGet("ventes")]
         public async Task<IActionResult> GetVentes()
         {
-            var ventes =await _service.GetAllVentesAsync();
+            var ventes = _service.GetVenteSummaries();
             if (ventes == null)
             {
                 return NotFound();

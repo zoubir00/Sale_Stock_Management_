@@ -220,7 +220,33 @@ namespace Sale_Management.Ventes
                 await _dbContext.SaveChangesAsync();
             }
         }
-        
+
+        //
+        public List<VenteSummaryDto> GetVenteSummaries()
+        {
+            var venteSummaries = _dbContext.Ventes
+                .Include(vente => vente.client)
+                .Include(vente => vente.articleVendue)
+                .GroupBy(vente => new { vente.DateVente, vente.client.FName, vente.client.LName })
+                .Select(group => new VenteSummaryDto
+                {
+                    IndividualSales = group.Select(vente => new VenteDto
+                    {
+                        Id = vente.Id,
+                        DateVente = vente.DateVente,
+                        clientFName = vente.client.FName,
+                        clientLName = vente.client.LName,
+                        articleVendue = vente.articleVendue.Libelle,
+                        QuantityVendue = vente.QuantityVendue,
+                        prixTotal = vente.PrixTotal(vente.articleVendue.Price)
+                    }).ToList(),
+                    TotalQuantity = group.Sum(vente => vente.QuantityVendue),
+                    TotalAmount = group.Sum(vente => vente.QuantityVendue * vente.articleVendue.Price)
+                })
+                .ToList();
+
+            return venteSummaries;
+        }
 
     }
 }
