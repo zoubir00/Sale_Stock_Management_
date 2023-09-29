@@ -42,7 +42,10 @@ namespace Sale_Management.Controllers
             }
             return Ok(ventes);
         }
+       
+        
         //Post
+
         [HttpPost("vente")]
         public  IActionResult AddVente([FromBody] InputVente input)
         {

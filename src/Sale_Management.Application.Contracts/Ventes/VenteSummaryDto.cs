@@ -6,8 +6,8 @@ namespace Sale_Management.Ventes
 {
     public class VenteSummaryDto
     {
-        public List<VenteDto> IndividualSales { get; set; } // List of individual sales
-        public int TotalQuantity { get; set; }             // Total quantity for all sales
+        public List<VenteDto> IndividualSales { get; set; }
+        public int TotalQuantity { get; set; }             
         public double TotalAmount { get; set; }
     }
 }

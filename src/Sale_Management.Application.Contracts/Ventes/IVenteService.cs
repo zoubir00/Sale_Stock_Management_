@@ -9,9 +9,7 @@ namespace Sale_Management.Ventes
 {
     public interface IVenteService
     {
-        VenteDto AddVente(int clientId, int articleId, int quantite);
         VenteSummaryDto CreateVente(int clientId, List<int> articleIds, List<int> quantities);
-        Task<List<VenteDto>> GetAllVentesAsync();
         Task<List<VenteDto>> GetVentesByClientNameAsync(string clientFName, string clientLName);
         Task deleteVente(int id);
         List<VenteSummaryDto> GetVenteSummaries();

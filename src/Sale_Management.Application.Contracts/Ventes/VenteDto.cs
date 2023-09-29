@@ -1,6 +1,5 @@
 ﻿using Sale_Management.Articles;
 using Sale_Management.Clients;
-using Sale_Management.VenteArticles;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

@@ -16,7 +16,5 @@ public class Sale_ManagementApplicationAutoMapperProfile : Profile
         CreateMap<Client, ClientDto>();
         CreateMap<Article, ArticleDto>();
         CreateMap<Vente, VenteDto>();
-        
-        CreateMap<VenteDto, CreateUpdateVenteDto>();
     }
 }

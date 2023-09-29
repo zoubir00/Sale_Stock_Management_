@@ -23,7 +23,7 @@ namespace Sale_Management.Ventes
             _mapper = mapper;
         }
 
-        // effectuer la vente
+        // create vente
         public VenteSummaryDto CreateVente(int clientId, List<int> articleIds, List<int> quantities)
         {
             // Get the client
@@ -35,14 +35,14 @@ namespace Sale_Management.Ventes
                 throw new Exception("Client not found!");
             }
 
-            // Create a list to store individual sale details
+            //  save individual vente details
             List<VenteDto> individualSales = new List<VenteDto>();
 
             // Initialize total quantity and total amount
             int totalQuantity = 0;
             double totalAmount = 0;
 
-            // Loop through each article and quantity
+            // Loop for each article and quantity
             for (int i = 0; i < articleIds.Count; i++)
             {
                 int articleId = articleIds[i];
@@ -70,7 +70,7 @@ namespace Sale_Management.Ventes
                     // Calculate individual sale total
                     double individualTotal = vente.PrixTotal(article.Price);
 
-                    // Create and add an individual sale DTO to the list
+                    // add sale to list
                     individualSales.Add(new VenteDto
                     {
                         Id = vente.Id,
@@ -82,7 +82,7 @@ namespace Sale_Management.Ventes
                         prixTotal = individualTotal
                     });
 
-                    // Update total quantity and total amount
+                    // Update total quantity & total amount
                     totalQuantity += quantite;
                     totalAmount += individualTotal;
                 }
@@ -95,7 +95,7 @@ namespace Sale_Management.Ventes
             // Save changes to the database
             _dbContext.SaveChanges();
 
-            // Create and return a summary DTO containing individual sales and totals
+            // summary of the vente with the ventes and totalQuantity and totalAmount
             var summaryDto = new VenteSummaryDto
             {
                 IndividualSales = individualSales,
@@ -106,7 +106,7 @@ namespace Sale_Management.Ventes
             return summaryDto;
         }
 
-        // get the ventes
+        
         public async Task<List<VenteDto>> GetAllVentesAsync()
         {
             var ventes = await _dbContext.Ventes
@@ -120,9 +120,9 @@ namespace Sale_Management.Ventes
                 DateVente = vente.DateVente,
                 clientFName = vente.client.FName,
                 clientLName = vente.client.LName,
-                articleVendue = vente.articleVendue.Libelle, // Include the Libelle of the Article
+                articleVendue = vente.articleVendue.Libelle, 
                 QuantityVendue = vente.QuantityVendue,
-                prixTotal = vente.PrixTotal(vente.articleVendue.Price) // Assuming you have a CalculatePrixTotal method
+                prixTotal = vente.PrixTotal(vente.articleVendue.Price) 
             }).ToList();
 
             return venteDtos;
@@ -146,66 +146,15 @@ namespace Sale_Management.Ventes
                     DateVente = vente.DateVente,
                     clientFName = vente.client.FName,
                     clientLName = vente.client.LName,
-                    articleVendue = vente.articleVendue.Libelle, // Include the Libelle of the Article
+                    articleVendue = vente.articleVendue.Libelle, 
                     QuantityVendue = vente.QuantityVendue,
-                    prixTotal = vente.PrixTotal(vente.articleVendue.Price) // Assuming you have a CalculatePrixTotal method
+                    prixTotal = vente.PrixTotal(vente.articleVendue.Price) 
                 };
                 return venteDto;
             }).ToList();
             return venteDtos;
         }
 
-        // effectuer la vente
-        public VenteDto AddVente(int clientId, int articleId, int quantite)
-        {
-            // Get the article
-            var article = _dbContext.Articles.Find(articleId);
-            // Get the client
-            var client = _dbContext.Clients.Find(clientId);
-
-            // Check the existence of client and article and the availability of quantity in stock
-            if (article != null && client != null && quantite <= article.QuantityinStock)
-            {
-                // Add Vente
-                var vente = new Vente
-                {
-                    DateVente = DateTime.Now,
-                    articleId = articleId,
-                    clientId = clientId,
-                    QuantityVendue = quantite
-                };
-
-                // Update stock quantity
-                article.QuantityinStock -= quantite;
-                _dbContext.Ventes.Add(vente);
-                _dbContext.SaveChanges();
-
-                // Fetch the client's first name and last name
-                var clientFName = client.FName;
-                var clientLName = client.LName;
-
-                // Fetch the article's Libelle
-                var articleLibelle = article.Libelle;
-
-                // Create and return a VenteDto
-                var venteDto = new VenteDto
-                {
-                    Id = vente.Id,
-                    DateVente = vente.DateVente,
-                    clientFName = clientFName,
-                    clientLName = clientLName,
-                    articleVendue = articleLibelle,
-                    QuantityVendue = vente.QuantityVendue,
-                    prixTotal = vente.PrixTotal(article.Price) // Assuming you have a CalculatePrixTotal method
-                };
-
-                return venteDto;
-            }
-            else
-            {
-                throw new Exception("Vente couldn't be done!");
-            }
-        }
         // delete
         public async Task deleteVente(int id)
         {
@@ -221,7 +170,7 @@ namespace Sale_Management.Ventes
             }
         }
 
-        //
+        // get the ventes
         public List<VenteSummaryDto> GetVenteSummaries()
         {
             var venteSummaries = _dbContext.Ventes
