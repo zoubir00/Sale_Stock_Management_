@@ -15,8 +15,8 @@ public class Sale_ManagementApplicationAutoMapperProfile : Profile
          * into multiple profile classes for a better organization. */
         CreateMap<Client, ClientDto>();
         CreateMap<Article, ArticleDto>();
-        CreateMap<Vente, VenteDto>();
+       
         
-        CreateMap<VenteDto, CreateUpdateVenteDto>();
+       
     }
 }

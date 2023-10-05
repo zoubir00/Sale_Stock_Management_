@@ -8,19 +8,14 @@ using Volo.Abp.Domain.Entities;
 
 namespace Sale_Management.Entities
 {
-    public class Vente:Entity<int>
+    public class Vente:Entity<Guid>
     {
         public DateTime DateVente { get; set; }
-        public int articleId { get; set; }
-        [ForeignKey(nameof(articleId))]
-        public Article? articleVendue { get; set; }
-         public int clientId { get; set; }
+        public int clientId { get; set; }
         [ForeignKey(nameof(clientId))]
         public Client? client { get; set; }
-        public int  QuantityVendue { get; set; }
-        public double PrixTotal(double articlePrice)
-        {
-            return articlePrice * QuantityVendue;
-        }
+        public int  QtyTotal { get; set; }
+        public double TotalAmount { get; set; }
+        public List<VenteLines>? VenteLines { get; set; }
     }
 }

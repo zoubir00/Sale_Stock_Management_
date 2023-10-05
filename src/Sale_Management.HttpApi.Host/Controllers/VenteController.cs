@@ -20,52 +20,52 @@ namespace Sale_Management.Controllers
             
         }
         // get Ventes
-        [HttpGet("ventes")]
-        public async Task<IActionResult> GetVentes()
-        {
-            var ventes = _service.GetVenteSummaries();
-            if (ventes == null)
-            {
-                return NotFound();
-            }
-            return Ok(ventes);
-        }
+        //[HttpGet("ventes")]
+        //public async Task<IActionResult> GetVentes()
+        //{
+        //    var ventes = _service.GetVenteSummaries();
+        //    if (ventes == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Ok(ventes);
+        //}
 
-        // get Client ventes
-        [HttpGet("GetVenteByClient")]
-        public async Task<IActionResult> GetClientVentes(string ClientfName, string ClientlName)
-        {
-           var ventes=await _service.GetVentesByClientNameAsync(ClientfName,ClientlName);
-            if (ventes==null)
-            {
-                return NotFound();
-            }
-            return Ok(ventes);
-        }
-        //Post
-        [HttpPost("vente")]
-        public  IActionResult AddVente([FromBody] InputVente input)
-        {
-            try
-            {
-               var ventesum= _service.CreateVente(input.clientId, input.articleIds,input.quantities);
-                return Ok(ventesum);
-            }
-            catch(Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-        // delete method:
-        [HttpDelete("ConfirmDelete/{id}")]
-        public  IActionResult Delete(int id)
-        {
-           var t= _service.deleteVente(id);
-            if (t.IsCompletedSuccessfully)
-            {
-                return Ok();
-            }
-            return NotFound();
-        }
+        //// get Client ventes
+        //[HttpGet("GetVenteByClient")]
+        //public async Task<IActionResult> GetClientVentes(string ClientfName, string ClientlName)
+        //{
+        //   var ventes=await _service.GetVentesByClientNameAsync(ClientfName,ClientlName);
+        //    if (ventes==null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return Ok(ventes);
+        //}
+        ////Post
+        //[HttpPost("vente")]
+        //public  IActionResult AddVente([FromBody] InputVente input)
+        //{
+        //    try
+        //    {
+        //       var ventesum= _service.CreateVente(input.clientId, input.articleIds,input.quantities);
+        //        return Ok(ventesum);
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message);
+        //    }
+        //}
+        //// delete method:
+        //[HttpDelete("ConfirmDelete/{id}")]
+        //public  IActionResult Delete(int id)
+        //{
+        //   var t= _service.deleteVente(id);
+        //    if (t.IsCompletedSuccessfully)
+        //    {
+        //        return Ok();
+        //    }
+        //    return NotFound();
+        //}
     }
 }
