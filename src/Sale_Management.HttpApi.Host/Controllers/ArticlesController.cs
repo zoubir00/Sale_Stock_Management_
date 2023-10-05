@@ -143,5 +143,21 @@ namespace Sale_Management.Controllers
                 }).ToList();
             return Ok(article);
         }
+        // Most articles sold
+        [HttpGet("mostSold")]
+        public async Task<IActionResult> ArticlesSold()
+        {
+            var articles = await _dbContext.Articles.Where(a => a.QuantityinStock <= 10)
+            .Select(article => new ArticleDto
+            {
+                Id = article.Id,
+                Libelle = article.Libelle,
+                //Image = article.Image,
+                Description = article.Description,
+                Price = article.Price,
+                QuantityinStock = article.QuantityinStock
+            }).ToListAsync();
+            return Ok(articles);
+        }
     }
 }
