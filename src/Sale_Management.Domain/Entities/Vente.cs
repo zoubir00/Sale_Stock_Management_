@@ -8,7 +8,7 @@ using Volo.Abp.Domain.Entities;
 
 namespace Sale_Management.Entities
 {
-    public class Vente:Entity<Guid>
+    public class Vente:Entity<string>
     {
         public DateTime DateVente { get; set; }
         public int clientId { get; set; }
@@ -16,6 +16,6 @@ namespace Sale_Management.Entities
         public Client? client { get; set; }
         public int  QtyTotal { get; set; }
         public double TotalAmount { get; set; }
-        public List<VenteLines>? VenteLines { get; set; }
+        public List<VenteLine> VenteLines { get; set; }
     }
 }

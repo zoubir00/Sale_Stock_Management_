@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Sale_Management.VenteLines;
 using Sale_Management.Ventes;
 using System;
 using System.Collections.Generic;
@@ -43,19 +44,19 @@ namespace Sale_Management.Controllers
         //    return Ok(ventes);
         //}
         ////Post
-        //[HttpPost("vente")]
-        //public  IActionResult AddVente([FromBody] InputVente input)
-        //{
-        //    try
-        //    {
-        //       var ventesum= _service.CreateVente(input.clientId, input.articleIds,input.quantities);
-        //        return Ok(ventesum);
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        return StatusCode(500, ex.Message);
-        //    }
-        //}
+        [HttpPost("vente")]
+        public IActionResult AddVente(string venteCode, DateTime dateVente, int clientId, List<VenteLinesDto> venteLines)
+        {
+            try
+            {
+                var ventesum = _service.CreateVente(venteCode, dateVente, clientId, venteLines);
+                return Ok(ventesum);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
         //// delete method:
         //[HttpDelete("ConfirmDelete/{id}")]
         //public  IActionResult Delete(int id)

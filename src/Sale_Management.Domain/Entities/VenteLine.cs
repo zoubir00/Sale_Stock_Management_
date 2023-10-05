@@ -8,9 +8,9 @@ using Volo.Abp.Domain.Entities;
 
 namespace Sale_Management.Entities
 {
-    public class VenteLines : Entity<int>
+    public class VenteLine : Entity<int>
     {
-        public Guid VenteCode { get; set; }
+        public string VenteCode { get; set; }
 
         [ForeignKey(nameof(VenteCode))]
         public Vente Vente { get; set; }

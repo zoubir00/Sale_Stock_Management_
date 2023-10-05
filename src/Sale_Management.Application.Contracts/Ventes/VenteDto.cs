@@ -1,6 +1,7 @@
 ﻿using Sale_Management.Articles;
 using Sale_Management.Clients;
 using Sale_Management.VenteArticles;
+using Sale_Management.VenteLines;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,16 +11,16 @@ using Volo.Abp.Json.SystemTextJson.JsonConverters;
 
 namespace Sale_Management.Ventes
 {
-    public class VenteDto:EntityDto<int>
+    public class VenteDto:EntityDto<string>
     {
-        public DateTime DateVente { get; set; }     
-        public string articleVendue { get; set; }
+        public DateTime DateVente { get; set; }
+        public int clientId { get; set; }
+        [ForeignKey(nameof(clientId))]
+        public ClientDto? client { get; set; }
+        public int QtyTotal { get; set; }
+        public double TotalAmount { get; set; }
+        public List<VenteLinesDto>? VenteLines { get; set; }
 
-        public string clientFName { get; set; }
-        public string clientLName { get; set; }
-        public int QuantityVendue { get; set; }
-        public double prixTotal { get; set; }
-       
 
     }
 }

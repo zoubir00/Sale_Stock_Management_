@@ -29,7 +29,7 @@ public class Sale_ManagementApplicationModule : AbpModule
     {
         context.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         context.Services.AddAssemblyOf<Sale_ManagementApplicationModule>();
-
+       
         Configure<AbpAutoMapperOptions>(options =>
         {
             options.AddMaps<Sale_ManagementApplicationModule>();

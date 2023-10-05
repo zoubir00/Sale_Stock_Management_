@@ -1,5 +1,6 @@
 ﻿using Sale_Management.Articles;
 using Sale_Management.Clients;
+using Sale_Management.VenteLines;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +10,7 @@ namespace Sale_Management.Ventes
 {
     public interface IVenteService
     {
+        VenteDto CreateVente(string venteCode, DateTime dateVente, int clientId, List<VenteLinesDto> venteLines);
         //VenteDto AddVente(int clientId, int articleId, int quantite);
         //VenteSummaryDto CreateVente(int clientId, List<int> articleIds, List<int> quantities);
         //Task<List<VenteDto>> GetAllVentesAsync();
