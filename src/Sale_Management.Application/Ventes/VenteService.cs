@@ -34,7 +34,7 @@ namespace Sale_Management.Ventes
             var vente = _mapper.Map<Vente>(new VenteDto
             {
                 Id = venteCode,
-                DateVente = DateTime.Now,
+                DateVente = dateVente,
                 clientId = clientId,
                 VenteLines = new List<VenteLinesDto>()
             });
@@ -73,5 +73,13 @@ namespace Sale_Management.Ventes
             var ventedto = _mapper.Map<VenteDto>(vente);
             return ventedto;
         }
+
+        // Get Ventes 
+        //public async VenteDto GetAllVentes()
+        //{
+        //    var ventes =await  _dbContext.Ventes;
+            
+            
+        //}
     }
 }
