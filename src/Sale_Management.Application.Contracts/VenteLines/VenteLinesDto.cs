@@ -10,8 +10,9 @@ namespace Sale_Management.VenteLines
 {
     public class VenteLinesDto:EntityDto<int>
     {
-        public string VenteCode { get; set; }
+        public string? VenteCode { get; set; }
         public int articleId { get; set; }
+        public string? articlelebelle { get; set; }
         public int QtySold { get; set; }
         public double TotalPrice { get; set; }
     }

@@ -13,11 +13,11 @@ namespace Sale_Management.Entities
         public string VenteCode { get; set; }
 
         [ForeignKey(nameof(VenteCode))]
-        public Vente Vente { get; set; }
+        public Vente? Vente { get; set; }
 
         public int articleId { get; set; }
         [ForeignKey(nameof(articleId))]
-        public Article Article { get; set; }
+        public Article? Article { get; set; }
 
         public int QtySold { get; set; }
         public double TotalPrice { get; set; }

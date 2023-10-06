@@ -49,6 +49,12 @@ namespace Sale_Management.Controllers
         [HttpPost("CreateArticle")]
         public IActionResult CreateArticle([FromForm]ArticleDto article)
         {
+
+            if (article.Image == null)
+            {
+                // Handle the case where the image is not provided in the request
+                return BadRequest("Image file is required.");
+            }
             var contentPath = this.env.ContentRootPath;
             var path = Path.Combine(contentPath, "Uploads");
             if (!Directory.Exists(path))
@@ -78,7 +84,7 @@ namespace Sale_Management.Controllers
                
             };
             _service.CreateAsync(_article);
-            return Ok();
+            return Ok(_article);
         }
         // edit article
         

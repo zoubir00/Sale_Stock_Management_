@@ -11,6 +11,9 @@ namespace Sale_Management.Ventes
     public interface IVenteService
     {
         VenteDto CreateVente(string venteCode, DateTime dateVente, int clientId, List<VenteLinesDto> venteLines);
+        List<GetVenteDto> GetAllVentes();
+        VenteDto GetVenteDetails(string codeVente);
+        VenteDto EditVente(string venteCode, DateTime newDateVente, int newcClientId, List<VenteLinesDto> venteLines);
         //VenteDto AddVente(int clientId, int articleId, int quantite);
         //VenteSummaryDto CreateVente(int clientId, List<int> articleIds, List<int> quantities);
         //Task<List<VenteDto>> GetAllVentesAsync();

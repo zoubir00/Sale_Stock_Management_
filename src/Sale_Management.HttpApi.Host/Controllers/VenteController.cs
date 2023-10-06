@@ -21,28 +21,28 @@ namespace Sale_Management.Controllers
             
         }
         // get Ventes
-        //[HttpGet("ventes")]
-        //public async Task<IActionResult> GetVentes()
-        //{
-        //    var ventes = _service.GetVenteSummaries();
-        //    if (ventes == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok(ventes);
-        //}
+        [HttpGet("ventes")]
+        public  IActionResult GetVentes()
+        {
+            var ventes = _service.GetAllVentes();
+            if (ventes == null)
+            {
+                return NotFound();
+            }
+            return Ok(ventes);
+        }
 
         //// get Client ventes
-        //[HttpGet("GetVenteByClient")]
-        //public async Task<IActionResult> GetClientVentes(string ClientfName, string ClientlName)
-        //{
-        //   var ventes=await _service.GetVentesByClientNameAsync(ClientfName,ClientlName);
-        //    if (ventes==null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return Ok(ventes);
-        //}
+        [HttpGet("{codeVente}")]
+        public IActionResult VenteDetails(string codeVente)
+        {
+            var vente =  _service.GetVenteDetails(codeVente);
+            if (vente == null)
+            {
+                return NotFound();
+            }
+            return Ok(vente);
+        }
         ////Post
         [HttpPost("vente")]
         public IActionResult AddVente(string venteCode, DateTime dateVente, int clientId, List<VenteLinesDto> venteLines)
@@ -53,6 +53,20 @@ namespace Sale_Management.Controllers
                 return Ok(ventesum);
             }
             catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
+        // edit 
+        [HttpPut]
+        public IActionResult UpdateVente(string venteCode, DateTime newDateVente, int newcClientId, List<VenteLinesDto> venteLines)
+        {
+            try
+            {
+                var updatedVente = _service.EditVente(venteCode, newDateVente, newcClientId, venteLines);
+                            return Ok(updatedVente);
+            }
+            catch(Exception ex)
             {
                 return BadRequest();
             }
