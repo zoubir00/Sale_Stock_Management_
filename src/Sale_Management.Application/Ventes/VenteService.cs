@@ -76,52 +76,64 @@ namespace Sale_Management.Ventes
         }
 
         // Edit vente
-        public VenteDto EditVente(string venteCode, DateTime newDateVente, int newcClientId, List<VenteLinesDto> venteLines)
+        public VenteDto EditVente(string venteCode, DateTime newDateVente, int newClientId, List<VenteLinesDto> updatedVenteLines)
         {
-            var existVente = GetVenteDetails(venteCode);
-            if (existVente == null)
-            {
-                throw new Exception("not exist");
-            }
-            else
-            {
-                existVente.DateVente = newDateVente;
-                existVente.clientId = newcClientId;
-                foreach(var venteline in venteLines)
-                {
-                    var existVenteLine = existVente.VenteLines.SingleOrDefault(vl => vl.Id == venteline.Id);
-                    if (existVenteLine != null)
-                    {
-                        existVenteLine.VenteCode = venteline.VenteCode;
-                        existVenteLine.articleId = venteline.articleId;
-                        existVenteLine.QtySold = venteline.QtySold;
-                        existVenteLine.TotalPrice = venteline.TotalPrice;
-                    }
-                    else
-                    {
-                        var article = _dbContext.Articles.Find(venteline.articleId);
-                        var newVenteLine = new VenteLinesDto
-                        {
-                            Id=venteline.Id,
-                            articleId = venteline.articleId,
-                            QtySold = venteline.QtySold,
-                            TotalPrice = venteline.QtySold*article.Price 
-                        };
-                        article.QuantityinStock -= newVenteLine.QtySold;
-                        existVente.VenteLines.Add(newVenteLine);
-                        
-                    }
+            var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
+                                                .SingleOrDefault(v => v.Id == venteCode);
 
-                }
+            if (existingVente == null)
+            {
+                throw new Exception("Vente not found");
             }
-            existVente.QtyTotal = existVente.VenteLines.Sum(vl => vl.QtySold);
-                existVente.TotalAmount = existVente.VenteLines.Sum(vl => vl.TotalPrice);
-                _dbContext.SaveChanges();
-            return existVente;
+
+            // Update vente properties
+            existingVente.DateVente = newDateVente;
+            existingVente.clientId = newClientId;
+
+            foreach (var updatedVenteLine in updatedVenteLines)
+            {
+                // Find the corresponding venteLine in the existingVente
+                var existingVenteLine = existingVente.VenteLines
+                               .SingleOrDefault(vl => vl.Id == updatedVenteLine.Id);
+
+                if (existingVenteLine == null)
+                {
+                    throw new Exception("Vente line not found");
+                }
+
+                // Find the corresponding article
+                var article = _dbContext.Articles.Find(updatedVenteLine.articleId);
+
+                if (article == null)
+                {
+                    throw new Exception("Article not found");
+                }
+
+                // Calculate quantity difference
+                int qtyDiff = updatedVenteLine.QtySold - existingVenteLine.QtySold;
+
+                // Adjust article quantity in stock
+                article.QuantityinStock += qtyDiff;
+
+                // Update vente line properties
+                existingVenteLine.articleId = updatedVenteLine.articleId;
+                existingVenteLine.QtySold = updatedVenteLine.QtySold;
+                existingVenteLine.TotalPrice = updatedVenteLine.QtySold * article.Price;
+            }
+
+            // Recalculate total quantity and total amount
+            existingVente.QtyTotal = existingVente.VenteLines.Sum(vl => vl.QtySold);
+            existingVente.TotalAmount = existingVente.VenteLines.Sum(vl => vl.TotalPrice);
+
+            // Save changes to the database
+            _dbContext.SaveChanges();
+
+            var ventedto = _mapper.Map<VenteDto>(existingVente);
+            return ventedto;
         }
 
         // Get Ventes 
-       public List<GetVenteDto> GetAllVentes()
+        public List<GetVenteDto> GetAllVentes()
         {
             var ventes = _dbContext.Ventes.Include(c=>c.client).ToList();
             var ventedto = ventes.Select(v => new GetVenteDto
@@ -166,6 +178,32 @@ namespace Sale_Management.Ventes
                 TotalAmount = vente.TotalAmount
             };
             return venteDto;
+        }
+
+        // delte venteLine 
+        public void DeleteVenteLine(string codeVente, int venteLineId)
+        {
+            var vente = _dbContext.Ventes.Include(vl => vl.VenteLines).ThenInclude(vl=>vl.Article).FirstOrDefault(v => v.Id == codeVente);
+            if (vente == null)
+            {
+                throw new Exception("Sale not found");
+            }
+            var venteLine = vente.VenteLines.SingleOrDefault(vl => vl.Id == venteLineId);
+            if (venteLine == null)
+            {
+                throw new Exception("sale line not found");
+            }
+
+            // restore the article quantity in stock
+            venteLine.Article.QuantityinStock += venteLine.QtySold;
+            // delete vente line
+            vente.VenteLines.Remove(venteLine);
+
+            vente.QtyTotal = vente.VenteLines.Sum(vl => vl.QtySold);
+            vente.TotalAmount = vente.VenteLines.Sum(vl => vl.TotalPrice);
+
+            _dbContext.SaveChanges();
+
         }
     }
 }

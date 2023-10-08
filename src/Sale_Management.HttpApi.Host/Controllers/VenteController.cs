@@ -71,16 +71,20 @@ namespace Sale_Management.Controllers
                 return BadRequest();
             }
         }
-        //// delete method:
-        //[HttpDelete("ConfirmDelete/{id}")]
-        //public  IActionResult Delete(int id)
-        //{
-        //   var t= _service.deleteVente(id);
-        //    if (t.IsCompletedSuccessfully)
-        //    {
-        //        return Ok();
-        //    }
-        //    return NotFound();
-        //}
+        //// delete vente line :
+        [HttpDelete("ventelines/{venteLineId}")]
+        public IActionResult Delete(string codeVente, int venteLineId)
+        {
+            try
+            {
+               _service.DeleteVenteLine(codeVente,venteLineId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message }); 
+            }
+
+        }
     }
 }
