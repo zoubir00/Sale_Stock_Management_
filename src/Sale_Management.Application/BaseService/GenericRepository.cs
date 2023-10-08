@@ -38,7 +38,7 @@ namespace Sale_Management.BaseService
         public async Task<List<TEntity>> GetAllAsync()
         {
             return await _dbContext.Set<TEntity>().ToListAsync();
-        }
+       }
 
         public async Task<TEntity> GetByIdAsync(int id)
         {
