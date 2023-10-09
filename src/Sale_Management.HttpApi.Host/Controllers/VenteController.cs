@@ -71,7 +71,39 @@ namespace Sale_Management.Controllers
                 return BadRequest();
             }
         }
-        //// delete vente line :
+
+        //add vete line
+        [HttpPost("newVenteLine")]
+        public IActionResult AddVenteLine(string venteCode, VenteLinesDto newVenteLineDto)
+        {
+            try
+            {
+                _service.AddVenteLineToVente(venteCode, newVenteLineDto);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        // delete vente
+        [HttpDelete("{codeVente}")]
+        public IActionResult Delete(string codeVente)
+        {
+            try
+            {
+                _service.DeleteVente(codeVente);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+
+        }
+
+        // delete vente line :
         [HttpDelete("ventelines/{venteLineId}")]
         public IActionResult Delete(string codeVente, int venteLineId)
         {

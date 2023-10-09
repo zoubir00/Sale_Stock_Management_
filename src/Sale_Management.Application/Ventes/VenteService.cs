@@ -180,6 +180,48 @@ namespace Sale_Management.Ventes
             return venteDto;
         }
 
+        //add vente line :
+        public void AddVenteLineToVente(string venteCode, VenteLinesDto newVenteLineDto)
+        {
+            var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
+                                .SingleOrDefault(v => v.Id == venteCode);
+
+            if (existingVente == null)
+            {
+                throw new Exception("Vente not found");
+            }
+
+            // Find the article
+            var article = _dbContext.Articles.Find(newVenteLineDto.articleId);
+
+            if (article == null || article.QuantityinStock < newVenteLineDto.QtySold)
+            {
+                throw new Exception("Article not found or insufficient quantity in stock");
+            }
+
+            // Create a new VenteLine and add it to the existing vente
+            var newVenteLine = new VenteLine
+            {
+                VenteCode = venteCode,
+                articleId = newVenteLineDto.articleId,
+                QtySold = newVenteLineDto.QtySold,
+                TotalPrice = newVenteLineDto.QtySold * article.Price
+            };
+
+            // Update article quantity in stock
+            article.QuantityinStock -= newVenteLineDto.QtySold;
+
+            // Add the new VenteLine to the existing vente
+            existingVente.VenteLines.Add(newVenteLine);
+
+            // total quantity , total amount 
+            existingVente.QtyTotal = existingVente.VenteLines.Sum(vl => vl.QtySold);
+            existingVente.TotalAmount = existingVente.VenteLines.Sum(vl => vl.TotalPrice);
+
+            _dbContext.SaveChanges();
+        }
+
+
         // delte venteLine 
         public void DeleteVenteLine(string codeVente, int venteLineId)
         {
@@ -205,5 +247,35 @@ namespace Sale_Management.Ventes
             _dbContext.SaveChanges();
 
         }
+
+        // delete vente
+        public void DeleteVente(string venteCode)
+        {
+            var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
+                                                .SingleOrDefault(v => v.Id == venteCode);
+
+            if (existingVente == null)
+            {
+                throw new Exception("Vente not found");
+            }
+
+            foreach (var venteLine in existingVente.VenteLines)
+            {
+                var article = _dbContext.Articles.Find(venteLine.articleId);
+                if (article != null)
+                {
+                    article.QuantityinStock += venteLine.QtySold;
+                }
+            }
+
+            // Remove venteLines 
+            _dbContext.Ventelines.RemoveRange(existingVente.VenteLines);
+
+            // Remove the vente 
+            _dbContext.Ventes.Remove(existingVente);
+            _dbContext.SaveChanges();
+        }
+
+
     }
 }

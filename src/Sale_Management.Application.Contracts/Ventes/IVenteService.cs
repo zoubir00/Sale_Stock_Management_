@@ -14,8 +14,11 @@ namespace Sale_Management.Ventes
         List<GetVenteDto> GetAllVentes();
         VenteDto GetVenteDetails(string codeVente);
         VenteDto EditVente(string venteCode, DateTime newDateVente, int newClientId, List<VenteLinesDto> updatedVenteLines);
+        void DeleteVente(string venteCode);
         // delte vente line
         void DeleteVenteLine(string codeVente, int venteLineId);
+        void AddVenteLineToVente(string venteCode, VenteLinesDto newVenteLineDto);
+
         //VenteDto AddVente(int clientId, int articleId, int quantite);
         //VenteSummaryDto CreateVente(int clientId, List<int> articleIds, List<int> quantities);
         //Task<List<VenteDto>> GetAllVentesAsync();
