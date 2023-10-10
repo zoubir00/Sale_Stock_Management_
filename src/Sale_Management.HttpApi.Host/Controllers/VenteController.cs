@@ -43,7 +43,7 @@ namespace Sale_Management.Controllers
             }
             return Ok(vente);
         }
-        ////Post
+        ////Post create vente
         [HttpPost("vente")]
         public IActionResult AddVente(string venteCode, DateTime dateVente, int clientId, List<VenteLinesDto> venteLines)
         {
@@ -57,7 +57,7 @@ namespace Sale_Management.Controllers
                 return BadRequest();
             }
         }
-        // edit 
+        // edit vente
         [HttpPut]
         public IActionResult UpdateVente(string venteCode, DateTime newDateVente, int newcClientId, List<VenteLinesDto> venteLines)
         {

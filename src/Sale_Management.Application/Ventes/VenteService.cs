@@ -92,7 +92,7 @@ namespace Sale_Management.Ventes
 
             foreach (var updatedVenteLine in updatedVenteLines)
             {
-                // Find the corresponding venteLine in the existingVente
+                // Find venteLine in the existingVente
                 var existingVenteLine = existingVente.VenteLines
                                .SingleOrDefault(vl => vl.Id == updatedVenteLine.Id);
 
@@ -112,7 +112,7 @@ namespace Sale_Management.Ventes
                 // Calculate quantity difference
                 int qtyDiff = updatedVenteLine.QtySold - existingVenteLine.QtySold;
 
-                // Adjust article quantity in stock
+                // update article quantity in stock
                 article.QuantityinStock += qtyDiff;
 
                 // Update vente line properties
@@ -121,11 +121,10 @@ namespace Sale_Management.Ventes
                 existingVenteLine.TotalPrice = updatedVenteLine.QtySold * article.Price;
             }
 
-            // Recalculate total quantity and total amount
+            //calculate total quantity, total amount
             existingVente.QtyTotal = existingVente.VenteLines.Sum(vl => vl.QtySold);
             existingVente.TotalAmount = existingVente.VenteLines.Sum(vl => vl.TotalPrice);
 
-            // Save changes to the database
             _dbContext.SaveChanges();
 
             var ventedto = _mapper.Map<VenteDto>(existingVente);
@@ -199,7 +198,7 @@ namespace Sale_Management.Ventes
                 throw new Exception("Article not found or insufficient quantity in stock");
             }
 
-            // Create a new VenteLine and add it to the existing vente
+            // create a new VenteLine and add it to the existing vente
             var newVenteLine = new VenteLine
             {
                 VenteCode = venteCode,
@@ -208,7 +207,7 @@ namespace Sale_Management.Ventes
                 TotalPrice = newVenteLineDto.QtySold * article.Price
             };
 
-            // Update article quantity in stock
+            // update article quantity in stock
             article.QuantityinStock -= newVenteLineDto.QtySold;
 
             // Add the new VenteLine to the existing vente
@@ -236,7 +235,7 @@ namespace Sale_Management.Ventes
                 throw new Exception("sale line not found");
             }
 
-            // restore the article quantity in stock
+            // restore the article qty in stock
             venteLine.Article.QuantityinStock += venteLine.QtySold;
             // delete vente line
             vente.VenteLines.Remove(venteLine);
