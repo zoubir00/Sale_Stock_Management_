@@ -28,6 +28,7 @@ using Volo.Abp.Modularity;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
+using Microsoft.Extensions.FileProviders;
 
 namespace Sale_Management;
 
@@ -188,7 +189,11 @@ public class Sale_ManagementHttpApiHostModule : AbpModule
         }
 
         app.UseCorrelationId();
-        app.UseStaticFiles();
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+            RequestPath = "/uploads"
+        });
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();
