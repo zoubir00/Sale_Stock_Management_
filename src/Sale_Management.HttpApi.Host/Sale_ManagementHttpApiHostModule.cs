@@ -189,11 +189,7 @@ public class Sale_ManagementHttpApiHostModule : AbpModule
         }
 
         app.UseCorrelationId();
-        app.UseStaticFiles(new StaticFileOptions
-        {
-            FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
-            RequestPath = "/uploads"
-        });
+        app.UseStaticFiles();
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();

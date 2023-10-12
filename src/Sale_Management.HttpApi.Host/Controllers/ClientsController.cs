@@ -76,7 +76,7 @@ namespace Sale_Management.Controllers
             return Ok(_existingClient);
         }
         // edit book
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("deleteClient/{id}")]
         public IActionResult DeleteClient(int id)
         {
             _service.DeleteAsync(id);
