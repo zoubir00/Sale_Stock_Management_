@@ -104,11 +104,14 @@ namespace Sale_Management.Ventes
                 // Find the corresponding article
                 var article = _dbContext.Articles.Find(updatedVenteLine.articleId);
 
-                if (article == null)
+                if (article == null || updatedVenteLine.QtySold > article.QuantityinStock)
                 {
                     throw new Exception("Article not found");
                 }
+                else
+                {
 
+                }
                 // Calculate quantity difference
                 int qtyDiff = updatedVenteLine.QtySold - existingVenteLine.QtySold;
 

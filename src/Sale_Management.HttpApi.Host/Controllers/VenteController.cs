@@ -54,7 +54,7 @@ namespace Sale_Management.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest("Quantity Expired");
             }
         }
         // edit vente
@@ -68,7 +68,7 @@ namespace Sale_Management.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex);
             }
         }
 
