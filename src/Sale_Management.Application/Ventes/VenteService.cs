@@ -110,18 +110,18 @@ namespace Sale_Management.Ventes
                 }
                 else
                 {
-
-                }
                 // Calculate quantity difference
-                int qtyDiff = updatedVenteLine.QtySold - existingVenteLine.QtySold;
+                                int qtyDiff = updatedVenteLine.QtySold - existingVenteLine.QtySold;
 
-                // update article quantity in stock
-                article.QuantityinStock += qtyDiff;
+                                // update article quantity in stock
+                                article.QuantityinStock -= qtyDiff;
 
-                // Update vente line properties
-                existingVenteLine.articleId = updatedVenteLine.articleId;
-                existingVenteLine.QtySold = updatedVenteLine.QtySold;
-                existingVenteLine.TotalPrice = updatedVenteLine.QtySold * article.Price;
+                                // Update vente line properties
+                                existingVenteLine.articleId = updatedVenteLine.articleId;
+                                existingVenteLine.QtySold = updatedVenteLine.QtySold;
+                                existingVenteLine.TotalPrice = updatedVenteLine.QtySold * article.Price;
+                }
+                
             }
 
             //calculate total quantity, total amount
