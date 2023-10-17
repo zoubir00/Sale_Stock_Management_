@@ -20,6 +20,7 @@ namespace Sale_Management.Entities
         public Article? Article { get; set; }
 
         public int QtySold { get; set; }
+        public double SalePrice { get; set; }
         public double TotalPrice { get; set; }
     }
 }

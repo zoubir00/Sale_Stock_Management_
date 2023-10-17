@@ -14,6 +14,7 @@ namespace Sale_Management.VenteLines
         public int articleId { get; set; }
         public string? articlelebelle { get; set; }
         public int QtySold { get; set; }
+        public double SalePrice { get; set; }
         public double TotalPrice { get; set; }
     }
 }

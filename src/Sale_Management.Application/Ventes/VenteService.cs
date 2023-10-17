@@ -39,8 +39,6 @@ namespace Sale_Management.Ventes
                 clientId = clientId,
                 VenteLines = new List<VenteLinesDto>()
             });
-
-
             int _qtyTotal = 0;
             double _totalAmount = 0;
             foreach (var venteline in venteLines)
@@ -53,13 +51,13 @@ namespace Sale_Management.Ventes
                         VenteCode = vente.Id,
                         articleId = article.Id,
                         QtySold = venteline.QtySold,
-                        TotalPrice = venteline.QtySold * article.Price
+                       SalePrice=article.Price,
+                       TotalPrice = venteline.QtySold * article.Price
                     });
                     article.QuantityinStock -= venteline.QtySold;
                     vente.VenteLines.Add(VenteLinedto);
                     _qtyTotal += venteline.QtySold;
                     _totalAmount += VenteLinedto.TotalPrice;
-
                 }
                 else
                 {
@@ -110,16 +108,17 @@ namespace Sale_Management.Ventes
                 }
                 else
                 {
-                // Calculate quantity difference
-                                int qtyDiff = updatedVenteLine.QtySold - existingVenteLine.QtySold;
+                    // Calculate quantity difference
+                    int qtyDiff = updatedVenteLine.QtySold - existingVenteLine.QtySold;
 
-                                // update article quantity in stock
-                                article.QuantityinStock -= qtyDiff;
+                    // update article quantity in stock
+                    article.QuantityinStock -= qtyDiff;
 
-                                // Update vente line properties
-                                existingVenteLine.articleId = updatedVenteLine.articleId;
-                                existingVenteLine.QtySold = updatedVenteLine.QtySold;
-                                existingVenteLine.TotalPrice = updatedVenteLine.QtySold * article.Price;
+                    // Update vente line properties
+                    existingVenteLine.articleId = updatedVenteLine.articleId;
+                    existingVenteLine.QtySold = updatedVenteLine.QtySold;
+                    existingVenteLine.SalePrice = updatedVenteLine.SalePrice;
+                    existingVenteLine.TotalPrice = updatedVenteLine.QtySold * updatedVenteLine.SalePrice;
                 }
                 
             }
@@ -174,6 +173,7 @@ namespace Sale_Management.Ventes
                     articleId = vl.articleId,
                     articlelebelle=vl.Article !=null ? vl.Article.Libelle : null,
                     QtySold = vl.QtySold,
+                    SalePrice=vl.TotalPrice/vl.QtySold,
                     TotalPrice = vl.TotalPrice,
                 }).ToList(),
                 QtyTotal = vente.QtyTotal,
