@@ -6,6 +6,7 @@ using Sale_Management.Articles;
 using Sale_Management.Entities;
 using Sale_Management.EntityFrameworkCore;
 using Sale_Management.IBaseServices;
+using Sale_Management.UploadService;
 using System;
 using System.IO;
 using System.Linq;
@@ -19,19 +20,31 @@ namespace Sale_Management.Controllers
     {
         private readonly Sale_ManagementDbContext _dbContext;
         private readonly IGenericRepository<Article> _service;
-        private readonly IWebHostEnvironment env;
+        [Obsolete]
+        private readonly IHostingEnvironment _host;
 
-        public ArticlesController(IGenericRepository<Article> service, Sale_ManagementDbContext dbContext, IWebHostEnvironment environment)
+        [Obsolete]
+        public ArticlesController(IGenericRepository<Article> service, Sale_ManagementDbContext dbContext, IHostingEnvironment host)
         {
             _service = service;
             _dbContext = dbContext;
-            this.env = environment;
+           
+            _host = host;
         }
         // get All article
         [HttpGet("GetArticles")]
         public async Task<ActionResult> GetAllArticle()
         {
-            var _article = await _service.GetAllAsync();
+            var _article = await _dbContext.Articles.ToListAsync();
+            //var article = _article.Select(a=>new ArticleDto
+            //{
+            //    Id=a.Id,
+            //    Libelle=a.Libelle,
+            //    Description=a.Description,
+            //    Image=@"C:\Users\HP\OneDrive\Bureau\Internship\AbpTutorial\GestionVente\angular\src\assets\images\articles\"+ a.Image,
+            //    Price=a.Price,
+            //    QuantityinStock=a.QuantityinStock
+            //});
             return Ok(_article);
         }
         // get article with by id
@@ -47,16 +60,22 @@ namespace Sale_Management.Controllers
         }
         // Insert article
         [HttpPost("CreateArticle")]
-        public IActionResult CreateArticle(ArticleDto article)
+        public IActionResult CreateArticle([FromForm] ArticleDto article,IFormFile img)
         {
+            //var filePath = Path.Combine(_host.WebRootPath + "/images/articles", img.FileName);
+            var filePath = Path.Combine(@"C:\\Users\\HP\\OneDrive\\Bureau\\Internship\\AbpTutorial\\GestionVente\\angular\\src\\assets\\images\\articles", img.FileName);
+            using (FileStream stream = new FileStream(filePath, FileMode.Create))
+            {
+                img.CopyTo(stream);
+            }
+          
             var _article = new Article
             {
                Libelle=article.Libelle,
-               Image=article.Image,
+               Image=img.FileName,
                Description=article.Description,
                Price=article.Price,
                QuantityinStock=article.QuantityinStock
-               
             };
             _service.CreateAsync(_article);
             return Ok(_article);
@@ -64,19 +83,30 @@ namespace Sale_Management.Controllers
         // edit article
         
         [HttpPut("editArticle/{id}")]
-        public async Task<IActionResult> UpdateArticle(int id, ArticleDto article)
+        public async Task<IActionResult> UpdateArticle(int id,[FromForm]ArticleDto article, IFormFile img)
         {
+           
             var existarticle = await _dbContext.Articles.FirstOrDefaultAsync(a => a.Id == id);
+
             if (existarticle == null)
             {
                 throw new Exception("Article doesn't exist");
             }
+
             // update the article
             existarticle.Libelle = article.Libelle;
-            existarticle.Image = article.Image;
             existarticle.Description = article.Description;
             existarticle.Price = article.Price;
             existarticle.QuantityinStock = article.QuantityinStock;
+            if (img != null || img.FileName.ToLower() != existarticle.Image.ToLower())
+            {
+                var filePath = Path.Combine(@"C:\\Users\\HP\\OneDrive\\Bureau\\Internship\\AbpTutorial\\GestionVente\\angular\\src\\assets\\images\\articles", img.FileName);
+                using (FileStream stream = new FileStream(filePath, FileMode.Create))
+                {
+                    img.CopyTo(stream);
+                }
+            }
+            existarticle.Image =img.FileName;
             _dbContext.Entry(existarticle).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
             return Ok(article);
