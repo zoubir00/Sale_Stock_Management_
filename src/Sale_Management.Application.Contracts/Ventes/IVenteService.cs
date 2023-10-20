@@ -10,14 +10,14 @@ namespace Sale_Management.Ventes
 {
     public interface IVenteService
     {
-        VenteDto CreateVente(string venteCode, DateTime dateVente, int clientId, List<VenteLinesDto> venteLines);
+        VenteDto CreateVente(DateTime dateVente, int clientId, List<VenteLinesDto> venteLines);
         List<GetVenteDto> GetAllVentes();
-        VenteDto GetVenteDetails(string codeVente);
-        VenteDto EditVente(string venteCode, DateTime newDateVente, int newClientId, List<VenteLinesDto> updatedVenteLines);
-        void DeleteVente(string venteCode);
-        // delte vente line
-        void DeleteVenteLine(string codeVente, int venteLineId);
-        void AddVenteLineToVente(string venteCode, VenteLinesDto newVenteLineDto);
+        VenteDto GetVenteDetails(Guid codeVente);
+        VenteDto EditVente(Guid venteCode, DateTime newDateVente, int newClientId, List<VenteLinesDto> updatedVenteLines);
+        void DeleteVente(Guid venteCode);
+        //delte vente line
+        void DeleteVenteLine(Guid codeVente, int venteLineId);
+        void AddVenteLineToVente(Guid venteCode, VenteLinesDto newVenteLineDto);
 
         //VenteDto AddVente(int clientId, int articleId, int quantite);
         //VenteSummaryDto CreateVente(int clientId, List<int> articleIds, List<int> quantities);

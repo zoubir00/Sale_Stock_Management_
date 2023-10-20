@@ -10,7 +10,7 @@ namespace Sale_Management.Entities
 {
     public class VenteLine : Entity<int>
     {
-        public string VenteCode { get; set; }
+        public Guid VenteCode { get; set; }
 
         [ForeignKey(nameof(VenteCode))]
         public Vente? Vente { get; set; }

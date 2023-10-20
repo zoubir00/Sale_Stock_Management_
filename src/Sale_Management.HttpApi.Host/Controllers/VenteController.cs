@@ -20,9 +20,9 @@ namespace Sale_Management.Controllers
             _service = service;
             
         }
-        // get Ventes
+        //// get Ventes
         [HttpGet("ventes")]
-        public  IActionResult GetVentes()
+        public IActionResult GetVentes()
         {
             var ventes = _service.GetAllVentes();
             if (ventes == null)
@@ -32,49 +32,49 @@ namespace Sale_Management.Controllers
             return Ok(ventes);
         }
 
-        //// get Client ventes
+        ////// get Client ventes
         [HttpGet("{codeVente}")]
-        public IActionResult VenteDetails(string codeVente)
+        public IActionResult VenteDetails(Guid codeVente)
         {
-            var vente =  _service.GetVenteDetails(codeVente);
+            var vente = _service.GetVenteDetails(codeVente);
             if (vente == null)
             {
                 return NotFound();
             }
             return Ok(vente);
         }
-        ////Post create vente
+        ////////Post create vente
         [HttpPost("vente")]
-        public IActionResult AddVente(string venteCode, DateTime dateVente, int clientId, List<VenteLinesDto> venteLines)
+        public IActionResult AddVente( DateTime dateVente, int clientId, List<VenteLinesDto> venteLines)
         {
             try
             {
-                var ventesum = _service.CreateVente(venteCode, dateVente, clientId, venteLines);
+                var ventesum = _service.CreateVente( dateVente, clientId, venteLines);
                 return Ok(ventesum);
             }
             catch (Exception ex)
             {
-                return BadRequest("Quantity Expired");
+                return BadRequest(ex.Message);
             }
         }
-        // edit vente
+        //// edit vente
         [HttpPut]
-        public IActionResult UpdateVente(string venteCode, DateTime newDateVente, int newcClientId, List<VenteLinesDto> venteLines)
+        public IActionResult UpdateVente(Guid venteCode, DateTime newDateVente, int newcClientId, List<VenteLinesDto> venteLines)
         {
             try
             {
                 var updatedVente = _service.EditVente(venteCode, newDateVente, newcClientId, venteLines);
-                            return Ok(updatedVente);
+                return Ok(updatedVente);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex);
             }
         }
 
-        //add vete line
+        ////add vete line
         [HttpPost("newVenteLine")]
-        public IActionResult AddVenteLine(string venteCode, VenteLinesDto newVenteLineDto)
+        public IActionResult AddVenteLine(Guid venteCode, VenteLinesDto newVenteLineDto)
         {
             try
             {
@@ -87,9 +87,9 @@ namespace Sale_Management.Controllers
             }
         }
 
-        // delete vente
+        //// delete vente
         [HttpDelete("{codeVente}")]
-        public IActionResult Delete(string codeVente)
+        public IActionResult Delete(Guid codeVente)
         {
             try
             {
@@ -103,18 +103,18 @@ namespace Sale_Management.Controllers
 
         }
 
-        // delete vente line :
+        //// delete vente line :
         [HttpDelete("ventelines/{venteLineId}")]
-        public IActionResult Delete(string codeVente, int venteLineId)
+        public IActionResult Delete(Guid codeVente, int venteLineId)
         {
             try
             {
-               _service.DeleteVenteLine(codeVente,venteLineId);
+                _service.DeleteVenteLine(codeVente, venteLineId);
                 return NoContent();
             }
             catch (Exception ex)
             {
-                return BadRequest(new { error = ex.Message }); 
+                return BadRequest(new { error = ex.Message });
             }
 
         }

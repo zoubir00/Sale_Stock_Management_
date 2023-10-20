@@ -6,7 +6,7 @@ using Volo.Abp.Application.Dtos;
 
 namespace Sale_Management.Ventes
 {
-    public class GetVenteDto : EntityDto<string>
+    public class GetVenteDto : EntityDto<Guid>
     {
         public DateTime DateVente { get; set; }
         public string clientName { get; set; }

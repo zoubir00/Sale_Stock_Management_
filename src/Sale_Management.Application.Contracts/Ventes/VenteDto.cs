@@ -11,7 +11,7 @@ using Volo.Abp.Json.SystemTextJson.JsonConverters;
 
 namespace Sale_Management.Ventes
 {
-    public class VenteDto:EntityDto<string>
+    public class VenteDto:AuditedEntityDto<Guid>
     {
         public DateTime DateVente { get; set; }
         public int clientId { get; set; }

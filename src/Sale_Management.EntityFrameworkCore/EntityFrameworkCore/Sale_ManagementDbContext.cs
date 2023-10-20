@@ -29,7 +29,7 @@ public class Sale_ManagementDbContext :
     public DbSet<Article> Articles { get; set; }
     public DbSet<Vente> Ventes { get; set; }
     public DbSet<VenteLine> Ventelines { get; set; }
-    
+
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityDbContext and ITenantManagementDbContext

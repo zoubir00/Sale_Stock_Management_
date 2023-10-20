@@ -24,7 +24,7 @@ namespace Sale_Management.Ventes
             _dbContext = dbContext;
             _mapper = mapper;
         }
-        public VenteDto CreateVente(string venteCode, DateTime dateVente, int clientId, List<VenteLinesDto> venteLines)
+        public VenteDto CreateVente(DateTime dateVente, int clientId, List<VenteLinesDto> venteLines)
         {
             //get client
             var client = _dbContext.Clients.Find(clientId);
@@ -34,7 +34,7 @@ namespace Sale_Management.Ventes
             }
             var vente = _mapper.Map<Vente>(new VenteDto
             {
-                Id = venteCode,
+                Id=Guid.NewGuid(),
                 DateVente = dateVente,
                 clientId = clientId,
                 VenteLines = new List<VenteLinesDto>()
@@ -44,15 +44,15 @@ namespace Sale_Management.Ventes
             foreach (var venteline in venteLines)
             {
                 var article = _dbContext.Articles.Find(venteline.articleId);
-                if (article == null || article.QuantityinStock >= venteline.QtySold)
+                if (article != null || article.QuantityinStock >= venteline.QtySold)
                 {
                     var VenteLinedto = _mapper.Map<VenteLine>(new VenteLinesDto
                     {
                         VenteCode = vente.Id,
                         articleId = article.Id,
                         QtySold = venteline.QtySold,
-                       SalePrice=article.Price,
-                       TotalPrice = venteline.QtySold * article.Price
+                        SalePrice = article.Price,
+                        TotalPrice = venteline.QtySold * article.Price
                     });
                     article.QuantityinStock -= venteline.QtySold;
                     vente.VenteLines.Add(VenteLinedto);
@@ -74,7 +74,7 @@ namespace Sale_Management.Ventes
         }
 
         // Edit vente
-        public VenteDto EditVente(string venteCode, DateTime newDateVente, int newClientId, List<VenteLinesDto> updatedVenteLines)
+        public VenteDto EditVente(Guid venteCode, DateTime newDateVente, int newClientId, List<VenteLinesDto> updatedVenteLines)
         {
             var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
                                                 .SingleOrDefault(v => v.Id == venteCode);
@@ -120,7 +120,7 @@ namespace Sale_Management.Ventes
                     existingVenteLine.SalePrice = updatedVenteLine.SalePrice;
                     existingVenteLine.TotalPrice = updatedVenteLine.QtySold * updatedVenteLine.SalePrice;
                 }
-                
+
             }
 
             //calculate total quantity, total amount
@@ -133,26 +133,26 @@ namespace Sale_Management.Ventes
             return ventedto;
         }
 
-        // Get Ventes 
+        //Get Ventes
         public List<GetVenteDto> GetAllVentes()
         {
-            var ventes = _dbContext.Ventes.Include(c=>c.client).ToList();
+            var ventes = _dbContext.Ventes.Include(c => c.client).ToList();
             var ventedto = ventes.Select(v => new GetVenteDto
             {
                 Id = v.Id,
                 DateVente = v.DateVente,
-                clientName = v.client.FName+" "+ v.client.LName,
+                clientName = v.client.FName + " " + v.client.LName,
                 QtyTotal = v.QtyTotal,
                 TotalAmount = v.TotalAmount
             }).ToList();
             return ventedto;
         }
-       
-        // get vente Details
-        public VenteDto GetVenteDetails(string codeVente)
+
+       // get vente Details
+        public VenteDto GetVenteDetails(Guid codeVente)
         {
             var vente = _dbContext.Ventes.Include(c => c.client).
-                Include(v => v.VenteLines).ThenInclude(vl=>vl.Article)
+                Include(v => v.VenteLines).ThenInclude(vl => vl.Article)
                 .FirstOrDefault(v => v.Id == codeVente);
             var venteDto = new VenteDto
             {
@@ -160,20 +160,20 @@ namespace Sale_Management.Ventes
                 DateVente = vente.DateVente,
                 client = new ClientDto
                 {
-                    Id=vente.client.Id,
+                    Id = vente.client.Id,
                     FName = vente.client.FName,
                     LName = vente.client.LName,
                     Email = vente.client.Email,
                     PhoneNumber = vente.client.PhoneNumber
                 },
-                VenteLines=vente.VenteLines.Select(vl=>new VenteLinesDto
+                VenteLines = vente.VenteLines.Select(vl => new VenteLinesDto
                 {
-                    Id=vl.Id,
+                    Id = vl.Id,
                     VenteCode = vl.VenteCode,
                     articleId = vl.articleId,
-                    articlelebelle=vl.Article !=null ? vl.Article.Libelle : null,
+                    articlelebelle = vl.Article != null ? vl.Article.Libelle : null,
                     QtySold = vl.QtySold,
-                    SalePrice=vl.TotalPrice/vl.QtySold,
+                    SalePrice = vl.TotalPrice / vl.QtySold,
                     TotalPrice = vl.TotalPrice,
                 }).ToList(),
                 QtyTotal = vente.QtyTotal,
@@ -182,8 +182,8 @@ namespace Sale_Management.Ventes
             return venteDto;
         }
 
-        //add vente line :
-        public void AddVenteLineToVente(string venteCode, VenteLinesDto newVenteLineDto)
+        ////add vente line :
+        public void AddVenteLineToVente(Guid venteCode, VenteLinesDto newVenteLineDto)
         {
             var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
                                 .SingleOrDefault(v => v.Id == venteCode);
@@ -225,9 +225,9 @@ namespace Sale_Management.Ventes
 
 
         // delte venteLine 
-        public void DeleteVenteLine(string codeVente, int venteLineId)
+        public void DeleteVenteLine(Guid codeVente, int venteLineId)
         {
-            var vente = _dbContext.Ventes.Include(vl => vl.VenteLines).ThenInclude(vl=>vl.Article).FirstOrDefault(v => v.Id == codeVente);
+            var vente = _dbContext.Ventes.Include(vl => vl.VenteLines).ThenInclude(vl => vl.Article).FirstOrDefault(v => v.Id == codeVente);
             if (vente == null)
             {
                 throw new Exception("Sale not found");
@@ -251,7 +251,7 @@ namespace Sale_Management.Ventes
         }
 
         // delete vente
-        public void DeleteVente(string venteCode)
+        public void DeleteVente(Guid venteCode)
         {
             var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
                                                 .SingleOrDefault(v => v.Id == venteCode);

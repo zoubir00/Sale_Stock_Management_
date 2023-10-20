@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sale_Management.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SaleManagement.Migrations
 {
     [DbContext(typeof(Sale_ManagementDbContext))]
-    partial class SaleManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231019113651_deleteVete")]
+    partial class deleteVete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,56 +84,6 @@ namespace SaleManagement.Migrations
                     b.ToTable("Clients");
                 });
 
-            modelBuilder.Entity("Sale_Management.Entities.Vente", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<DateTime>("DateVente")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ExtraProperties")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<int>("QtyTotal")
-                        .HasColumnType("int");
-
-                    b.Property<double>("TotalAmount")
-                        .HasColumnType("float");
-
-                    b.Property<int>("clientId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("clientId");
-
-                    b.ToTable("Ventes");
-                });
-
             modelBuilder.Entity("Sale_Management.Entities.VenteLine", b =>
                 {
                     b.Property<int>("Id")
@@ -148,15 +101,14 @@ namespace SaleManagement.Migrations
                     b.Property<double>("TotalPrice")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("VenteCode")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("VenteCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("articleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("VenteCode");
 
                     b.HasIndex("articleId");
 
@@ -1819,25 +1771,8 @@ namespace SaleManagement.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
-            modelBuilder.Entity("Sale_Management.Entities.Vente", b =>
-                {
-                    b.HasOne("Sale_Management.Entities.Client", "client")
-                        .WithMany()
-                        .HasForeignKey("clientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("client");
-                });
-
             modelBuilder.Entity("Sale_Management.Entities.VenteLine", b =>
                 {
-                    b.HasOne("Sale_Management.Entities.Vente", "Vente")
-                        .WithMany("VenteLines")
-                        .HasForeignKey("VenteCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Sale_Management.Entities.Article", "Article")
                         .WithMany()
                         .HasForeignKey("articleId")
@@ -1845,8 +1780,6 @@ namespace SaleManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("Article");
-
-                    b.Navigation("Vente");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>
@@ -1989,11 +1922,6 @@ namespace SaleManagement.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.Vente", b =>
-                {
-                    b.Navigation("VenteLines");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
