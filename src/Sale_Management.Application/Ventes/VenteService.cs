@@ -5,277 +5,260 @@ using Sale_Management.Clients;
 using Sale_Management.Entities;
 using Sale_Management.EntityFrameworkCore;
 using Sale_Management.VenteLines;
+using Sale_Management.Ventes.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Services;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.ObjectMapping;
+using Volo.Abp.Application.Dtos;
+using Sale_Management.Clients.Repository;
+using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Domain.Entities;
+using Sale_Management.Articles.Repository;
+using SendGrid.Helpers.Errors.Model;
 
 namespace Sale_Management.Ventes
 {
-    public class VenteService : IVenteService,IScopedDependency
+    public class VenteService : ApplicationService ,IVenteService
     {
-        private readonly Sale_ManagementDbContext _dbContext;
-        private readonly IMapper _mapper;
+        //private readonly Sale_ManagementDbContext _dbContext;
+        public readonly IVenteRepository _venteRepository;
+        private readonly IClientRepository _clientRepository;
+        private readonly IArticleRepository _articleRepository;
+        private readonly IRepository<VenteLine,Guid> _venteLineRepository;
 
-        public VenteService(Sale_ManagementDbContext dbContext, IMapper mapper)
+        //public readonly VenteManager _venteManager;
+
+        public VenteService(IVenteRepository venteRepository, IClientRepository clientRepository, IRepository<VenteLine, Guid> venteLineRepository, IArticleRepository articleRepository)
         {
-            _dbContext = dbContext;
-            _mapper = mapper;
+
+            _venteRepository = venteRepository;
+            _clientRepository = clientRepository;
+            _venteLineRepository = venteLineRepository;
+            _articleRepository = articleRepository;
+            //_venteManager = venteManager;
         }
-        public VenteDto CreateVente(DateTime dateVente, int clientId, List<VenteLinesDto> venteLines)
+        //Get Ventes
+        public async Task<PagedResultDto<GetVenteDto>> GetAllVentes()
         {
-            //get client
-            var client = _dbContext.Clients.Find(clientId);
+            
+            try
+            {
+                var queryable = await _venteRepository.GetQueryableAsync();
+                var ventedto = await queryable.Include(vente => vente.client)
+                    .Select(vente => new GetVenteDto
+                    {
+                        Id = vente.Id,
+                        DateVente = vente.DateVente,
+                        ClientId=vente.client.Id,
+                        clientName = vente.client.FName + " " + vente.client.LName,
+                        QtyTotal = vente.QtyTotal,
+                        TotalAmount = vente.TotalAmount
+                    }).ToListAsync();
+
+                var totalCount = await _venteRepository.CountAsync();
+                return new PagedResultDto<GetVenteDto>(
+               totalCount,
+              ventedto
+               );
+              
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+       // get vente Details
+        public async Task<VenteDto> GetVenteDetails(Guid codeVente)
+        {
+            var queryable = await _venteRepository.GetQueryableAsync();
+
+            var venteDto = await queryable
+                .Include(vente => vente.client)
+                .Include(vente => vente.VenteLines).ThenInclude(a => a.Article)
+                .FirstOrDefaultAsync(vente => vente.Id == codeVente);
+                
+                var vente =new VenteDto
+                {
+                    Id = venteDto.Id,
+                    DateVente = venteDto.DateVente,
+                    clientId = venteDto.clientId,
+                    clientName = venteDto.client.FName + " " + venteDto.client.LName,
+
+                    VenteLines = venteDto.VenteLines.Select(vl => new VenteLinesDto
+                    {
+                        Id = vl.Id,
+                        VenteCode = venteDto.Id,
+                        articleId = vl.articleId,
+                        articlelebelle = vl.Article.Libelle,
+                        QtySold = vl.QtySold,
+                        SalePrice = vl.TotalPrice / vl.QtySold,
+                        TotalPrice = vl.TotalPrice
+                    }).ToList(),
+                    QtyTotal = venteDto.QtyTotal,
+                    TotalAmount = venteDto.TotalAmount
+                };
+                 
+                return vente;
+        }
+        //
+        public async Task<VenteDto> CreateVente(DateTime dateVente, Guid clientId, List<VenteLinesDto> venteLines)
+        {
+            // get client
+            var client = await _clientRepository.GetAsync(clientId);
             if (client == null)
             {
                 throw new Exception("Client Not found");
             }
-            var vente = _mapper.Map<Vente>(new VenteDto
-            {
-                Id=Guid.NewGuid(),
-                DateVente = dateVente,
-                clientId = clientId,
-                VenteLines = new List<VenteLinesDto>()
-            });
+            var vente = new Vente
+            (
+                dateVente,
+                clientId
+            );
+            
             int _qtyTotal = 0;
             double _totalAmount = 0;
-            foreach (var venteline in venteLines)
+            foreach(var venteLine in venteLines)
             {
-                var article = _dbContext.Articles.Find(venteline.articleId);
-                if (article != null || article.QuantityinStock >= venteline.QtySold)
+                var article = await _articleRepository.GetAsync(venteLine.articleId);
+                if (article != null || article.QuantityinStock >= venteLine.QtySold)
                 {
-                    var VenteLinedto = _mapper.Map<VenteLine>(new VenteLinesDto
-                    {
-                        VenteCode = vente.Id,
-                        articleId = article.Id,
-                        QtySold = venteline.QtySold,
-                        SalePrice = article.Price,
-                        TotalPrice = venteline.QtySold * article.Price
-                    });
-                    article.QuantityinStock -= venteline.QtySold;
-                    vente.VenteLines.Add(VenteLinedto);
-                    _qtyTotal += venteline.QtySold;
-                    _totalAmount += VenteLinedto.TotalPrice;
+                    var _venteline = new VenteLine
+                    ( 
+                       vente.Id,
+                       article.Id,
+                       venteLine.QtySold,
+                       article.Price,
+                       venteLine.QtySold * article.Price
+                    );
+
+                    article.QuantityinStock -= venteLine.QtySold;
+                    vente.VenteLines.Add(_venteline);
+                    _qtyTotal += venteLine.QtySold;
+                    _totalAmount += _venteline.TotalPrice;
                 }
                 else
                 {
                     throw new Exception("Vente line doesn't valid");
                 }
-
             }
             vente.QtyTotal = _qtyTotal;
             vente.TotalAmount = _totalAmount;
-            _dbContext.Ventes.Add(vente);
-            _dbContext.SaveChanges();
-            var ventedto = _mapper.Map<VenteDto>(vente);
-            return ventedto;
+            await _venteRepository.InsertAsync(vente);
+
+            return ObjectMapper.Map<Vente, VenteDto>(vente);
+           
         }
 
-        // Edit vente
-        public VenteDto EditVente(Guid venteCode, DateTime newDateVente, int newClientId, List<VenteLinesDto> updatedVenteLines)
+        public async Task<VenteDto> UpdateVenteAsync(Guid venteCode, DateTime newDateVente, Guid newClientId, List<VenteLinesDto> updatedVenteLines)
         {
-            var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
-                                                .SingleOrDefault(v => v.Id == venteCode);
+            try
+            {
 
+                var queryable = await _venteRepository.GetQueryableAsync();
+                // get vente
+                var existingVente = await queryable.Include(v => v.VenteLines).
+                        FirstOrDefaultAsync(v => v.Id == venteCode);
             if (existingVente == null)
             {
-                throw new Exception("Vente not found");
+                throw new NotFoundException("Vente not found");
             }
-
-            // Update vente properties
             existingVente.DateVente = newDateVente;
             existingVente.clientId = newClientId;
 
-            foreach (var updatedVenteLine in updatedVenteLines)
+            foreach(var venteline in updatedVenteLines)
             {
-                // Find venteLine in the existingVente
-                var existingVenteLine = existingVente.VenteLines
-                               .SingleOrDefault(vl => vl.Id == updatedVenteLine.Id);
-
-                if (existingVenteLine == null)
+                var existingVenteLine = existingVente.VenteLines.FirstOrDefault(vl => vl.Id == venteline.Id);
+                if (existingVenteLine !=null)
                 {
-                    throw new Exception("Vente line not found");
-                }
-
-                // Find the corresponding article
-                var article = _dbContext.Articles.Find(updatedVenteLine.articleId);
-
-                if (article == null || updatedVenteLine.QtySold > article.QuantityinStock)
-                {
-                    throw new Exception("Article not found");
+                    int diff = venteline.QtySold - existingVenteLine.QtySold;
+                     
+                    existingVenteLine.QtySold = venteline.QtySold;
+                    existingVenteLine.SalePrice = venteline.SalePrice;
+                    existingVenteLine.TotalPrice = venteline.SalePrice * venteline.QtySold;
+                        var article = await _articleRepository.GetAsync(venteline.articleId);
+                        if(article != null && article.QuantityinStock >= venteline.QtySold)
+                        {
+                            article.QuantityinStock -= diff;
+                        }      
                 }
                 else
                 {
-                    // Calculate quantity difference
-                    int qtyDiff = updatedVenteLine.QtySold - existingVenteLine.QtySold;
+                    var article = await _articleRepository.GetAsync(venteline.articleId);
+                    if(article!=null && article.QuantityinStock >= venteline.QtySold)
+                    {
+                        var newVenteLine = new VenteLine
+                        (   existingVente.Id,
+                            article.Id,
+                            venteline.QtySold,
+                           article.Price,
+                            venteline.SalePrice*venteline.QtySold
+                         );
+                          article.QuantityinStock -= newVenteLine.QtySold;
+                        existingVente.VenteLines.Add(newVenteLine);
 
-                    // update article quantity in stock
-                    article.QuantityinStock -= qtyDiff;
-
-                    // Update vente line properties
-                    existingVenteLine.articleId = updatedVenteLine.articleId;
-                    existingVenteLine.QtySold = updatedVenteLine.QtySold;
-                    existingVenteLine.SalePrice = updatedVenteLine.SalePrice;
-                    existingVenteLine.TotalPrice = updatedVenteLine.QtySold * updatedVenteLine.SalePrice;
+                    }
+                    else
+                    {
+                        throw new Exception("Vente line doesn't valid");
+                    }
                 }
-
             }
-
-            //calculate total quantity, total amount
             existingVente.QtyTotal = existingVente.VenteLines.Sum(vl => vl.QtySold);
             existingVente.TotalAmount = existingVente.VenteLines.Sum(vl => vl.TotalPrice);
-
-            _dbContext.SaveChanges();
-
-            var ventedto = _mapper.Map<VenteDto>(existingVente);
-            return ventedto;
-        }
-
-        //Get Ventes
-        public List<GetVenteDto> GetAllVentes()
-        {
-            var ventes = _dbContext.Ventes.Include(c => c.client).ToList();
-            var ventedto = ventes.Select(v => new GetVenteDto
-            {
-                Id = v.Id,
-                DateVente = v.DateVente,
-                clientName = v.client.FName + " " + v.client.LName,
-                QtyTotal = v.QtyTotal,
-                TotalAmount = v.TotalAmount
-            }).ToList();
-            return ventedto;
-        }
-
-       // get vente Details
-        public VenteDto GetVenteDetails(Guid codeVente)
-        {
-            var vente = _dbContext.Ventes.Include(c => c.client).
-                Include(v => v.VenteLines).ThenInclude(vl => vl.Article)
-                .FirstOrDefault(v => v.Id == codeVente);
-            var venteDto = new VenteDto
-            {
-                Id = vente.Id,
-                DateVente = vente.DateVente,
-                client = new ClientDto
-                {
-                    Id = vente.client.Id,
-                    FName = vente.client.FName,
-                    LName = vente.client.LName,
-                    Email = vente.client.Email,
-                    PhoneNumber = vente.client.PhoneNumber
-                },
-                VenteLines = vente.VenteLines.Select(vl => new VenteLinesDto
-                {
-                    Id = vl.Id,
-                    VenteCode = vl.VenteCode,
-                    articleId = vl.articleId,
-                    articlelebelle = vl.Article != null ? vl.Article.Libelle : null,
-                    QtySold = vl.QtySold,
-                    SalePrice = vl.TotalPrice / vl.QtySold,
-                    TotalPrice = vl.TotalPrice,
-                }).ToList(),
-                QtyTotal = vente.QtyTotal,
-                TotalAmount = vente.TotalAmount
-            };
-            return venteDto;
-        }
-
-        ////add vente line :
-        public void AddVenteLineToVente(Guid venteCode, VenteLinesDto newVenteLineDto)
-        {
-            var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
-                                .SingleOrDefault(v => v.Id == venteCode);
-
-            if (existingVente == null)
-            {
-                throw new Exception("Vente not found");
+            await _venteRepository.UpdateAsync(existingVente);
+            return ObjectMapper.Map<Vente, VenteDto>(existingVente);
             }
-
-            // Find the article
-            var article = _dbContext.Articles.Find(newVenteLineDto.articleId);
-
-            if (article == null || article.QuantityinStock < newVenteLineDto.QtySold)
+            catch(Exception ex)
             {
-                throw new Exception("Article not found or insufficient quantity in stock");
+                throw new Exception(ex.Message);
             }
-
-            // create a new VenteLine and add it to the existing vente
-            var newVenteLine = new VenteLine
-            {
-                VenteCode = venteCode,
-                articleId = newVenteLineDto.articleId,
-                QtySold = newVenteLineDto.QtySold,
-                TotalPrice = newVenteLineDto.QtySold * article.Price
-            };
-
-            // update article quantity in stock
-            article.QuantityinStock -= newVenteLineDto.QtySold;
-
-            // Add the new VenteLine to the existing vente
-            existingVente.VenteLines.Add(newVenteLine);
-
-            // total quantity , total amount 
-            existingVente.QtyTotal = existingVente.VenteLines.Sum(vl => vl.QtySold);
-            existingVente.TotalAmount = existingVente.VenteLines.Sum(vl => vl.TotalPrice);
-
-            _dbContext.SaveChanges();
         }
-
-
+        
         // delte venteLine 
-        public void DeleteVenteLine(Guid codeVente, int venteLineId)
+        public async Task DeleteVenteLine(Guid codeVente, Guid venteLineId)
         {
-            var vente = _dbContext.Ventes.Include(vl => vl.VenteLines).ThenInclude(vl => vl.Article).FirstOrDefault(v => v.Id == codeVente);
+            var _vente = await _venteRepository.GetQueryableAsync();
+            var vente = await _vente.Include(vl => vl.VenteLines).ThenInclude(a => a.Article).FirstOrDefaultAsync(v=>v.Id==codeVente);
             if (vente == null)
             {
-                throw new Exception("Sale not found");
+                throw new NotFoundException("sale not found");
             }
-            var venteLine = vente.VenteLines.SingleOrDefault(vl => vl.Id == venteLineId);
-            if (venteLine == null)
+            var venteline = vente.VenteLines.SingleOrDefault(vl => vl.Id == venteLineId);
+            if (venteline == null)
             {
-                throw new Exception("sale line not found");
+                throw new NotFoundException("sale not found");
             }
 
-            // restore the article qty in stock
-            venteLine.Article.QuantityinStock += venteLine.QtySold;
-            // delete vente line
-            vente.VenteLines.Remove(venteLine);
+            venteline.Article.QuantityinStock += venteline.QtySold;
 
-            vente.QtyTotal = vente.VenteLines.Sum(vl => vl.QtySold);
-            vente.TotalAmount = vente.VenteLines.Sum(vl => vl.TotalPrice);
-
-            _dbContext.SaveChanges();
+            await _venteLineRepository.DeleteAsync(venteline);
 
         }
 
         // delete vente
-        public void DeleteVente(Guid venteCode)
+        public async Task DeleteVente(Guid venteCode)
         {
-            var existingVente = _dbContext.Ventes.Include(v => v.VenteLines)
-                                                .SingleOrDefault(v => v.Id == venteCode);
-
+            var _vente = await _venteRepository.GetQueryableAsync();
+            var existingVente = await _vente.Include(vl => vl.VenteLines).FirstOrDefaultAsync(v => v.Id == venteCode);
             if (existingVente == null)
             {
-                throw new Exception("Vente not found");
+                throw new NotFoundException("Sale not found");
             }
-
-            foreach (var venteLine in existingVente.VenteLines)
+            foreach(var venteline in existingVente.VenteLines)
             {
-                var article = _dbContext.Articles.Find(venteLine.articleId);
+                var article = await _articleRepository.FindAsync(venteline.articleId);
                 if (article != null)
                 {
-                    article.QuantityinStock += venteLine.QtySold;
+                    article.QuantityinStock += venteline.QtySold;
                 }
+                await _venteLineRepository.DeleteAsync(venteline);
             }
-
-            // Remove venteLines 
-            _dbContext.Ventelines.RemoveRange(existingVente.VenteLines);
-
-            // Remove the vente 
-            _dbContext.Ventes.Remove(existingVente);
-            _dbContext.SaveChanges();
+            await _venteRepository.DeleteAsync(existingVente);
+           
         }
 
 

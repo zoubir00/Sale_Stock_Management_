@@ -17,10 +17,13 @@ public class Sale_ManagementApplicationAutoMapperProfile : Profile
          * into multiple profile classes for a better organization. */
         CreateMap<Client, ClientDto>();
         CreateMap<Article, ArticleDto>();
+        CreateMap<Article, CreateArticleDto>();
+        CreateMap<Vente, VenteDto>();
         CreateMap<VenteDto, Vente>(); // Map from VenteDto to Vente
-        CreateMap<Vente, VenteDto>(); // Map from Vente to VenteDto
-        CreateMap<VenteLinesDto, VenteLine>(); // Map from VenteLinesDto to VenteLines (if needed)
+        // Map from Vente to VenteDto
         CreateMap<VenteLine, VenteLinesDto>();
+        CreateMap<VenteLinesDto, VenteLine>(); // Map from VenteLinesDto to VenteLines (if needed)
+       
 
 
 

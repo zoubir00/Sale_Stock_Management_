@@ -9,7 +9,8 @@ namespace Sale_Management.Ventes
     public class GetVenteDto : EntityDto<Guid>
     {
         public DateTime DateVente { get; set; }
-        public string clientName { get; set; }
+        public Guid ClientId { get; set; }
+        public string? clientName { get; set; }
         public int QtyTotal { get; set; }
         public double TotalAmount { get; set; }
     }

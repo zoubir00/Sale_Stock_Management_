@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sale_Management.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SaleManagement.Migrations
 {
     [DbContext(typeof(Sale_ManagementDbContext))]
-    partial class SaleManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231023102105_changeClientId")]
+    partial class changeClientId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,8 +29,11 @@ namespace SaleManagement.Migrations
 
             modelBuilder.Entity("Sale_Management.Entities.Article", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -47,32 +53,6 @@ namespace SaleManagement.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Articles");
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.Client", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Clients");
                 });
 
             modelBuilder.Entity("Sale_Management.Entities.Vente", b =>
@@ -115,20 +95,21 @@ namespace SaleManagement.Migrations
                     b.Property<double>("TotalAmount")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("clientId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("clientId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("clientId");
 
                     b.ToTable("Ventes");
                 });
 
             modelBuilder.Entity("Sale_Management.Entities.VenteLine", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("QtySold")
                         .HasColumnType("int");
@@ -142,8 +123,8 @@ namespace SaleManagement.Migrations
                     b.Property<Guid>("VenteCode")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("articleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("articleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1808,17 +1789,6 @@ namespace SaleManagement.Migrations
                     b.HasKey("TenantId", "Name");
 
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.Vente", b =>
-                {
-                    b.HasOne("Sale_Management.Entities.Client", "client")
-                        .WithMany()
-                        .HasForeignKey("clientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("client");
                 });
 
             modelBuilder.Entity("Sale_Management.Entities.VenteLine", b =>

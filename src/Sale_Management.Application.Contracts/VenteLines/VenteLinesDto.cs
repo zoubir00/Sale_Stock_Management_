@@ -8,10 +8,10 @@ using Volo.Abp.Application.Dtos;
 
 namespace Sale_Management.VenteLines
 {
-    public class VenteLinesDto:EntityDto<int>
+    public class VenteLinesDto:EntityDto<Guid>
     {
         public Guid? VenteCode { get; set; }
-        public int articleId { get; set; }
+        public Guid articleId { get; set; }
         public string? articlelebelle { get; set; }
         public int QtySold { get; set; }
         public double SalePrice { get; set; }

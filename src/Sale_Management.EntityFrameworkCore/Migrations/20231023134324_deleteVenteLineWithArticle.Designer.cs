@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sale_Management.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,11 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SaleManagement.Migrations
 {
     [DbContext(typeof(Sale_ManagementDbContext))]
-    partial class SaleManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231023134324_deleteVenteLineWithArticle")]
+    partial class deleteVenteLineWithArticle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,31 +26,6 @@ namespace SaleManagement.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Sale_Management.Entities.Article", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Image")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Libelle")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
-                    b.Property<int>("QuantityinStock")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Articles");
-                });
 
             modelBuilder.Entity("Sale_Management.Entities.Client", b =>
                 {
@@ -123,35 +101,6 @@ namespace SaleManagement.Migrations
                     b.HasIndex("clientId");
 
                     b.ToTable("Ventes");
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.VenteLine", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("QtySold")
-                        .HasColumnType("int");
-
-                    b.Property<double>("SalePrice")
-                        .HasColumnType("float");
-
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("float");
-
-                    b.Property<Guid>("VenteCode")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("articleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VenteCode");
-
-                    b.HasIndex("articleId");
-
-                    b.ToTable("Ventelines");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>
@@ -1821,25 +1770,6 @@ namespace SaleManagement.Migrations
                     b.Navigation("client");
                 });
 
-            modelBuilder.Entity("Sale_Management.Entities.VenteLine", b =>
-                {
-                    b.HasOne("Sale_Management.Entities.Vente", "Vente")
-                        .WithMany("VenteLines")
-                        .HasForeignKey("VenteCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sale_Management.Entities.Article", "Article")
-                        .WithMany()
-                        .HasForeignKey("articleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Article");
-
-                    b.Navigation("Vente");
-                });
-
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLogAction", b =>
                 {
                     b.HasOne("Volo.Abp.AuditLogging.AuditLog", null)
@@ -1980,11 +1910,6 @@ namespace SaleManagement.Migrations
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Sale_Management.Entities.Vente", b =>
-                {
-                    b.Navigation("VenteLines");
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>

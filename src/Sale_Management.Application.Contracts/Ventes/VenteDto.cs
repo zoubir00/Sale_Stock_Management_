@@ -14,11 +14,12 @@ namespace Sale_Management.Ventes
     public class VenteDto:AuditedEntityDto<Guid>
     {
         public DateTime DateVente { get; set; }
-        public int clientId { get; set; }
-        [ForeignKey(nameof(clientId))]
-        public ClientDto? client { get; set; }
+        public Guid clientId { get; set; }
+        public string? clientName { get; set; }
+        public string? clientPhoneNumber { get; set; }
         public int QtyTotal { get; set; }
         public double TotalAmount { get; set; }
+
         public List<VenteLinesDto>? VenteLines { get; set; }
 
 

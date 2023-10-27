@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.Domain.Repositories;
 
-namespace Sale_Management.Clients.Repository
+namespace Sale_Management.Ventes.Repository
 {
-    public interface IClientRepository : IRepository<Client, Guid>
+    public interface IVenteRepository: IRepository<Vente,Guid>
     {
-        Task<Client> GetByIdAsync(Guid id);
+        
     }
 }

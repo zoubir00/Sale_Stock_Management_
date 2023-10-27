@@ -1,12 +1,14 @@
-﻿using Sale_Management.BaseService;
-using Sale_Management.Clients.Repository;
+﻿using Sale_Management.Clients.Repository;
+using Sale_Management.Entities;
 using Sale_Management.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Domain.Repositories;
 
 namespace Sale_Management.Clients
 {
@@ -14,33 +16,67 @@ namespace Sale_Management.Clients
     {
         private readonly IClientRepository _clientRepository;
         private readonly ClientManager _clientManager;
-        public ClientService(IClientRepository clientRepository)
+
+        public ClientService(IClientRepository clientRepository, ClientManager clientManager)
         {
-            _clientManager = clientRepository;
-        }
-        public Task<ClientDto> CreateAsync(ClientDto entity)
-        {
-            throw new NotImplementedException();
+            _clientRepository = clientRepository;
+            _clientManager = clientManager;
         }
 
-        public Task DeleteAsync(int id)
+        public async Task<ClientDto> CreateAsync(CreateClientDto client)
         {
-            throw new NotImplementedException();
+            try
+            {   
+                 var _client = await _clientManager.CreateClientAsync(client.FName, client.LName, client.Email, client.PhoneNumber);
+                 await _clientRepository.InsertAsync(_client);
+                 return ObjectMapper.Map<Client, ClientDto>(_client);
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            
         }
 
-        public Task<List<ClientDto>> GetAllAsync()
+        public async Task DeleteAsync(Guid id)
         {
-            throw new NotImplementedException();
+           
+            await _clientRepository.DeleteAsync(id);
         }
 
-        public Task<ClientDto> GetByIdAsync(int id)
+        public async Task<PagedResultDto<ClientDto>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            var clients = await _clientRepository.GetListAsync();
+            if (clients.Count == 0)
+            {
+                throw new NoClientFoundException();
+            }
+            var totalCount = await _clientRepository.CountAsync();
+            return new PagedResultDto<ClientDto>(
+                totalCount,
+                ObjectMapper.Map<List<Client>, List<ClientDto>>(clients)
+                );
         }
 
-        public Task<ClientDto> UpdateAsync(int id, ClientDto entity)
+        public async Task<ClientDto> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var client = await _clientRepository.GetAsync(id);
+            return ObjectMapper.Map<Client, ClientDto>(client);
+        }
+
+        public async Task UpdateAsync(Guid id, UpdateClientDto Newclient)
+        {
+            var existClient = await _clientRepository.GetAsync(id);
+            if (existClient == null)
+            {
+                throw new Exception("Client not found");
+            }
+            existClient.FName = Newclient.FName;
+            existClient.LName = Newclient.LName;
+            existClient.Email = Newclient.Email;
+            existClient.PhoneNumber = Newclient.PhoneNumber;
+
+            await _clientRepository.UpdateAsync(existClient);
+
         }
     }
 }

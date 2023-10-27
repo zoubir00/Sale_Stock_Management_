@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Volo.Abp.Application.Dtos;
-using Microsoft.AspNetCore.Http;
 
 namespace Sale_Management.Articles
 {
-    public class ArticleDto: EntityDto<Guid>
+    public class UpdateArticleDto
     {
         public string? Libelle { get; set; }
         public string? Description { get; set; }

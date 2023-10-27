@@ -6,15 +6,15 @@
     "LongWelcomeMessage": "Welcome to the sale Application",
     "Menu:Clients": "Clients",
     "Clients": "Clients",
-    "ClientDeletionConfirmationMessage": "Are you sure to delete the client '{0}'?",
+    "ClientDeletionConfirmationMessage": "Are you sure to delete the client?",
     "NewClient": "New client",
     "Menu:Articles": "Articles",
     "Articles": "Articles",
-    "ArticleDeletionConfirmationMessage": "Are you sure to delete the article '{0}'?",
+    "ArticleDeletionConfirmationMessage": "Are you sure to delete the article ?",
     "Newarticle": "New article",
     "Menu:Ventes": "Ventes",
     "Ventes": "Ventes",
-    "VenteDeletionConfirmationMessage": "Are you sure to delete the Vente '{0}'?",
+    "VenteDeletionConfirmationMessage": "Are you sure to delete the Vente ?",
     "NewVente": "New vente",
     "Actions": "Actions",
     "Close": "Close",
@@ -23,6 +23,7 @@
     "fName": "First Name",
     "lName": "Last Name",
     "email": "Email",
-    "phoneNumber": "Phone Number"
+    "phoneNumber": "Phone Number",
+    "SaleClient:00001": "Client or Clients Not found"
   }
 }

@@ -22,14 +22,14 @@ namespace Sale_Management.UploadService
         }
 
         [Obsolete]
-        public string UploadImage(IFormFile img)
+        public  async Task<string> UploadImage(IFormFile img)
         {
-            var filePath = Path.Combine(_host.ContentRootPath + "/images/articles", img.FileName);
+            var filePath = Path.Combine(@"C:\\Users\\HP\\OneDrive\\Bureau\\Internship\\AbpTutorial\\GestionVente\\angular\\src\\assets\\images\\articles", img.FileName);
             using(FileStream stream =new FileStream(filePath, FileMode.Create))
             {
-                img.CopyTo(stream);
+               await img.CopyToAsync(stream);
             }
-            return img.FileName;
+            return  img.FileName;
         }
     }
 }
