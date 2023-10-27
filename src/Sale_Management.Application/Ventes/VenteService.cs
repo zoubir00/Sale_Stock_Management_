@@ -20,6 +20,7 @@ using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Entities;
 using Sale_Management.Articles.Repository;
 using SendGrid.Helpers.Errors.Model;
+using SaleManagement.Migrations;
 
 namespace Sale_Management.Ventes
 {
@@ -134,7 +135,6 @@ namespace Sale_Management.Ventes
                        article.Price,
                        venteLine.QtySold * article.Price
                     );
-
                     article.QuantityinStock -= venteLine.QtySold;
                     vente.VenteLines.Add(_venteline);
                     _qtyTotal += venteLine.QtySold;
@@ -151,6 +151,46 @@ namespace Sale_Management.Ventes
 
             return ObjectMapper.Map<Vente, VenteDto>(vente);
            
+        }
+        // valid a sale 
+        public async Task<string> validCreate(Guid codeVente)
+        {
+            var message = "Valid Sale";
+            var queryable = await _venteRepository.GetQueryableAsync();
+
+            var venteDto = await queryable
+                .Include(vente => vente.client)
+                .Include(vente => vente.VenteLines).ThenInclude(a => a.Article)
+                .FirstOrDefaultAsync(vente => vente.Id == codeVente);
+            foreach(var venteline in venteDto.VenteLines)
+            {
+                var article = await _articleRepository.GetAsync(venteline.articleId);
+                if(article!=null || article.QuantityinStock >= venteline.QtySold)
+                {
+                    article.QuantityinStock -= venteline.QtySold;
+                }
+            }
+            return message;
+        }
+        // Invalid a sale
+        public async Task<string> InvalidCreate(Guid codeVente)
+        {
+            var message = "Invalid Sale";
+            var queryable = await _venteRepository.GetQueryableAsync();
+
+            var venteDto = await queryable
+                .Include(vente => vente.client)
+                .Include(vente => vente.VenteLines).ThenInclude(a => a.Article)
+                .FirstOrDefaultAsync(vente => vente.Id == codeVente);
+            foreach (var venteline in venteDto.VenteLines)
+            {
+                var article = await _articleRepository.GetAsync(venteline.articleId);
+                if (article != null || article.QuantityinStock >= venteline.QtySold)
+                {
+                    article.QuantityinStock += venteline.QtySold;
+                }
+            }
+            return message;
         }
 
         public async Task<VenteDto> UpdateVenteAsync(Guid venteCode, DateTime newDateVente, Guid newClientId, List<VenteLinesDto> updatedVenteLines)
