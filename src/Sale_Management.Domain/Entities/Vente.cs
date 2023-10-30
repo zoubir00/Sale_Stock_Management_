@@ -18,6 +18,7 @@ namespace Sale_Management.Entities
         public Client? client { get; set; }
         public int QtyTotal { get; set; }
         public double TotalAmount { get; set; }
+        public bool IsValid { get; set; }
         public List<VenteLine>? VenteLines { get; set; }
 
         public Vente(DateTime dateVente, Guid clientId)
@@ -27,6 +28,7 @@ namespace Sale_Management.Entities
             this.clientId = clientId;
             QtyTotal = 0;
             TotalAmount = 0;
+            IsValid = false;
             VenteLines = new List<VenteLine>();
         }
 

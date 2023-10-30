@@ -81,24 +81,25 @@ namespace Sale_Management.Ventes
                 .Include(vente => vente.client)
                 .Include(vente => vente.VenteLines).ThenInclude(a => a.Article)
                 .FirstOrDefaultAsync(vente => vente.Id == codeVente);
-                
-                var vente =new VenteDto
-                {
-                    Id = venteDto.Id,
-                    DateVente = venteDto.DateVente,
-                    clientId = venteDto.clientId,
-                    clientName = venteDto.client.FName + " " + venteDto.client.LName,
 
-                    VenteLines = venteDto.VenteLines.Select(vl => new VenteLinesDto
-                    {
-                        Id = vl.Id,
-                        VenteCode = venteDto.Id,
-                        articleId = vl.articleId,
-                        articlelebelle = vl.Article.Libelle,
-                        QtySold = vl.QtySold,
-                        SalePrice = vl.TotalPrice / vl.QtySold,
-                        TotalPrice = vl.TotalPrice
-                    }).ToList(),
+            var vente = new VenteDto
+            {
+                Id = venteDto.Id,
+                DateVente = venteDto.DateVente,
+                clientId = venteDto.clientId,
+                clientName = venteDto.client.FName + " " + venteDto.client.LName,
+
+                VenteLines = venteDto.VenteLines.Select(vl => new VenteLinesDto
+                {
+                    Id = vl.Id,
+                    VenteCode = venteDto.Id,
+                    articleId = vl.articleId,
+                    articlelebelle = vl.Article.Libelle,
+                    QtySold = vl.QtySold,
+                    SalePrice = vl.TotalPrice / vl.QtySold,
+                    TotalPrice = vl.TotalPrice
+                }).ToList(),
+                IsValid = venteDto.IsValid,
                     QtyTotal = venteDto.QtyTotal,
                     TotalAmount = venteDto.TotalAmount
                 };
@@ -135,7 +136,7 @@ namespace Sale_Management.Ventes
                        article.Price,
                        venteLine.QtySold * article.Price
                     );
-                    article.QuantityinStock -= venteLine.QtySold;
+                    //article.QuantityinStock -= venteLine.QtySold;
                     vente.VenteLines.Add(_venteline);
                     _qtyTotal += venteLine.QtySold;
                     _totalAmount += _venteline.TotalPrice;
@@ -147,6 +148,7 @@ namespace Sale_Management.Ventes
             }
             vente.QtyTotal = _qtyTotal;
             vente.TotalAmount = _totalAmount;
+            vente.IsValid = false;
             await _venteRepository.InsertAsync(vente);
 
             return ObjectMapper.Map<Vente, VenteDto>(vente);
@@ -162,6 +164,7 @@ namespace Sale_Management.Ventes
                 .Include(vente => vente.client)
                 .Include(vente => vente.VenteLines).ThenInclude(a => a.Article)
                 .FirstOrDefaultAsync(vente => vente.Id == codeVente);
+            venteDto.IsValid = true;  
             foreach(var venteline in venteDto.VenteLines)
             {
                 var article = await _articleRepository.GetAsync(venteline.articleId);
@@ -182,6 +185,7 @@ namespace Sale_Management.Ventes
                 .Include(vente => vente.client)
                 .Include(vente => vente.VenteLines).ThenInclude(a => a.Article)
                 .FirstOrDefaultAsync(vente => vente.Id == codeVente);
+            venteDto.IsValid = false;
             foreach (var venteline in venteDto.VenteLines)
             {
                 var article = await _articleRepository.GetAsync(venteline.articleId);
@@ -222,7 +226,10 @@ namespace Sale_Management.Ventes
                         var article = await _articleRepository.GetAsync(venteline.articleId);
                         if(article != null && article.QuantityinStock >= venteline.QtySold)
                         {
-                            article.QuantityinStock -= diff;
+                            if (existingVente.IsValid == true) {
+                                article.QuantityinStock -= diff;
+                            }
+                           
                         }      
                 }
                 else
@@ -237,7 +244,11 @@ namespace Sale_Management.Ventes
                            article.Price,
                             venteline.SalePrice*venteline.QtySold
                          );
-                          article.QuantityinStock -= newVenteLine.QtySold;
+                            if (existingVente.IsValid == true)
+                            {
+                                article.QuantityinStock -= newVenteLine.QtySold;
+                            }
+                          
                         existingVente.VenteLines.Add(newVenteLine);
 
                     }

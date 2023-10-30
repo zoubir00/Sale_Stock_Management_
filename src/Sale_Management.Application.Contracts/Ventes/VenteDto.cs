@@ -19,6 +19,7 @@ namespace Sale_Management.Ventes
         public string? clientPhoneNumber { get; set; }
         public int QtyTotal { get; set; }
         public double TotalAmount { get; set; }
+        public bool IsValid { get; set; }
 
         public List<VenteLinesDto>? VenteLines { get; set; }
 
