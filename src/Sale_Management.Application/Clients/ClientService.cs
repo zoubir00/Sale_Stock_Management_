@@ -1,4 +1,5 @@
-﻿using Sale_Management.Clients.Repository;
+﻿using Microsoft.AspNetCore.Authorization;
+using Sale_Management.Clients.Repository;
 using Sale_Management.Entities;
 using Sale_Management.EntityFrameworkCore;
 using System;
@@ -12,6 +13,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Sale_Management.Clients
 {
+    [Authorize(Roles = "SaleAdmin,saler")]
     public class ClientService : ApplicationService ,IClientService
     {
         private readonly IClientRepository _clientRepository;
@@ -22,7 +24,7 @@ namespace Sale_Management.Clients
             _clientRepository = clientRepository;
             _clientManager = clientManager;
         }
-
+      
         public async Task<ClientDto> CreateAsync(CreateClientDto client)
         {
             try
@@ -36,13 +38,13 @@ namespace Sale_Management.Clients
             }
             
         }
-
+        [Authorize(Roles = "SaleAdmin")]
         public async Task DeleteAsync(Guid id)
         {
            
             await _clientRepository.DeleteAsync(id);
         }
-
+        
         public async Task<PagedResultDto<ClientDto>> GetAllAsync()
         {
             var clients = await _clientRepository.GetListAsync();
@@ -62,7 +64,7 @@ namespace Sale_Management.Clients
             var client = await _clientRepository.GetAsync(id);
             return ObjectMapper.Map<Client, ClientDto>(client);
         }
-
+        [Authorize(Roles = "SaleAdmin")]
         public async Task UpdateAsync(Guid id, UpdateClientDto Newclient)
         {
             var existClient = await _clientRepository.GetAsync(id);

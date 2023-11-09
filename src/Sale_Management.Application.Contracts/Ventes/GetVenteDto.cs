@@ -13,6 +13,7 @@ namespace Sale_Management.Ventes
         public string? clientName { get; set; }
         public int QtyTotal { get; set; }
         public double TotalAmount { get; set; }
+        public bool IsValid { get; set; }
     }
    
 }

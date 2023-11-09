@@ -21,9 +21,11 @@ using Volo.Abp.Domain.Entities;
 using Sale_Management.Articles.Repository;
 using SendGrid.Helpers.Errors.Model;
 using SaleManagement.Migrations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Sale_Management.Ventes
 {
+    [Authorize(Roles = "SaleAdmin,saler")]
     public class VenteService : ApplicationService ,IVenteService
     {
         //private readonly Sale_ManagementDbContext _dbContext;
@@ -50,7 +52,7 @@ namespace Sale_Management.Ventes
             try
             {
                 var queryable = await _venteRepository.GetQueryableAsync();
-                var ventedto = await queryable.Include(vente => vente.client)
+                var ventedto = await queryable.Include(vente => vente.client).OrderByDescending(vente=>vente.DateVente)
                     .Select(vente => new GetVenteDto
                     {
                         Id = vente.Id,
@@ -58,9 +60,11 @@ namespace Sale_Management.Ventes
                         ClientId=vente.client.Id,
                         clientName = vente.client.FName + " " + vente.client.LName,
                         QtyTotal = vente.QtyTotal,
-                        TotalAmount = vente.TotalAmount
+                        TotalAmount = vente.TotalAmount,
+                        IsValid=vente.IsValid
+                        
                     }).ToListAsync();
-
+                
                 var totalCount = await _venteRepository.CountAsync();
                 return new PagedResultDto<GetVenteDto>(
                totalCount,
@@ -73,6 +77,7 @@ namespace Sale_Management.Ventes
             }
         }
        // get vente Details
+       
         public async Task<VenteDto> GetVenteDetails(Guid codeVente)
         {
             var queryable = await _venteRepository.GetQueryableAsync();
@@ -172,6 +177,11 @@ namespace Sale_Management.Ventes
                 {
                     article.QuantityinStock -= venteline.QtySold;
                 }
+                else
+                {
+
+                    throw new Exception("Article quantity is null");
+                }
             }
             return message;
         }
@@ -229,8 +239,12 @@ namespace Sale_Management.Ventes
                             if (existingVente.IsValid == true) {
                                 article.QuantityinStock -= diff;
                             }
-                           
-                        }      
+
+                        }
+                        else
+                        {
+                            throw new Exception("Article quantity is null");
+                        }     
                 }
                 else
                 {
@@ -289,7 +303,7 @@ namespace Sale_Management.Ventes
             await _venteLineRepository.DeleteAsync(venteline);
 
         }
-
+        [Authorize(Roles = "SaleAdmin")]
         // delete vente
         public async Task DeleteVente(Guid venteCode)
         {

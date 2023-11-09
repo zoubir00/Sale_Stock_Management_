@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace Sale_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "SaleAdmin,saler")]
     public class ArticlesController : ControllerBase
     {
         private readonly IArticleService _service;
@@ -36,6 +38,7 @@ namespace Sale_Management.Controllers
         }
         // get All article
         [HttpGet("GetArticles")]
+        [AllowAnonymous]
         public async Task<ActionResult> GetAllArticle()
         {
             var _article = await _service.GetAllAsync();

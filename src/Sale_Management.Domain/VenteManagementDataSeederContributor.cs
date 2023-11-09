@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+using Sale_Management.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,13 +13,25 @@ namespace Sale_Management
 {
     public class VenteManagementDataSeederContributor : IDataSeedContributor, ITransientDependency
     {
-        public VenteManagementDataSeederContributor()
+        private readonly IRepository<Client, Guid> _clientRepository;
+        public VenteManagementDataSeederContributor(IRepository<Client, Guid> clientRepository)
         {
-            
+            _clientRepository = clientRepository;
         }
-        public Task SeedAsync(DataSeedContext context)
+        public async Task SeedAsync(DataSeedContext context)
         {
-            throw new NotImplementedException();
+            await _clientRepository.InsertAsync(
+                new Client(
+                
+                    Guid.NewGuid(),
+                     "Walid",
+                     "Azhar",
+                    "walid@test.com",
+                     "0789876535"
+                     )
+                ,
+                autoSave: true
+                );
         }
     }
 }
